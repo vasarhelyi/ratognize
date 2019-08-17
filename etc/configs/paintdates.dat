@@ -1,0 +1,9 @@
+################################################################################
+# list the painting dates in this file                                         #
+# first column should be 'PAINT', second in 'YYYY-MM-DD_hh-mm-ss' format.      #
+# list all entries in increasing order                                         #
+# add as much comments as possible to avoid later confusion                    #
+################################################################################
+
+# example line:
+# PAINT 2011-05-24_17-00-00 # comment

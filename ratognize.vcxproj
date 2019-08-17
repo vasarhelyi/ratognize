@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EA4671CB-28B9-455B-BB72-34A2B27149FA}</ProjectGuid>
+    <RootNamespace>ratognize</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="user_macros.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="user_macros.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="user_macros.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="user_macros.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(VCInstallDir)PlatformSDK\include;$(IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VCInstallDir)PlatformSDK\include;$(IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>$(VCInstallDir)PlatformSDK\lib;$(LibraryPath);</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>$(VCInstallDir)PlatformSDK\lib;$(LibraryPath);</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <SourcePath>$(SourcePath);</SourcePath>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
+    <CustomBuildBeforeTargets>
+    </CustomBuildBeforeTargets>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <SourcePath>$(SourcePath);</SourcePath>
+    <CustomBuildAfterTargets />
+    <CustomBuildBeforeTargets />
+    <OutDir>$(SolutionDir)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(VCInstallDir)PlatformSDK\include;$(IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(VCInstallDir)PlatformSDK\include;$(IncludePath);</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LibraryPath>$(VCInstallDir)PlatformSDK\lib;$(LibraryPath);</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LibraryPath>$(VCInstallDir)PlatformSDK\lib;$(LibraryPath);</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <SourcePath>$(SourcePath);</SourcePath>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
+    <OutDir>$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <SourcePath>$(SourcePath);</SourcePath>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
+    <OutDir>$(SolutionDir)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)build\include;$(OPENCV_DIR)build\include\opencv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opencv_core$(OPENCV_VERSION)d.lib;opencv_highgui$(OPENCV_VERSION)d.lib;opencv_video$(OPENCV_VERSION)d.lib;opencv_ml$(OPENCV_VERSION)d.lib;opencv_legacy$(OPENCV_VERSION)d.lib;opencv_imgproc$(OPENCV_VERSION)d.lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)build\x86\vc14\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <CustomBuildStep>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Message>Copy .DLL to output directory</Message>
+      <Command>
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_ffmpeg$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_core$(OPENCV_VERSION)d.dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_highgui$(OPENCV_VERSION)d.dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_imgproc$(OPENCV_VERSION)d.dll" "$(OutDir)"
+        copy "$(TBB_DIR)\ia32\vc14\tbb_debug.dll" "$(OutDir)"
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)build\include;$(OPENCV_DIR)build\include\opencv;$(LIBSVM_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opencv_core$(OPENCV_VERSION)d.lib;opencv_highgui$(OPENCV_VERSION)d.lib;opencv_video$(OPENCV_VERSION)d.lib;opencv_ml$(OPENCV_VERSION)d.lib;opencv_legacy$(OPENCV_VERSION)d.lib;opencv_imgproc$(OPENCV_VERSION)d.lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)build\x64\vc14\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Message>Copy .DLL to output directory</Message>
+      <Command>
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_ffmpeg$(OPENCV_VERSION)_64.dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_core$(OPENCV_VERSION)d.dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_highgui$(OPENCV_VERSION)d.dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_imgproc$(OPENCV_VERSION)d.dll" "$(OutDir)"
+        copy "$(TBB_DIR)\intel64\vc14\tbb_debug.dll" "$(OutDir)"
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)build\include;$(OPENCV_DIR)build\include\opencv;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opencv_core$(OPENCV_VERSION).lib;opencv_highgui$(OPENCV_VERSION).lib;opencv_video$(OPENCV_VERSION).lib;opencv_ml$(OPENCV_VERSION).lib;opencv_legacy$(OPENCV_VERSION).lib;opencv_imgproc$(OPENCV_VERSION).lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)build\x86\vc14\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <CustomBuildStep>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Message>Copy .DLL to output directory</Message>
+      <Command>
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_ffmpeg$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_core$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_highgui$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x86\vc14\bin\opencv_imgproc$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(TBB_DIR)\ia32\vc14\tbb.dll" "$(OutDir)"
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)build\include;$(OPENCV_DIR)build\include\opencv;$(LIBSVM_DIR);</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;$(OPENCV_DIR)build\x64\vc10\lib\opencv_core$(OPENCV_VERSION).lib;opencv_highgui$(OPENCV_VERSION).lib;opencv_video$(OPENCV_VERSION).lib;opencv_ml$(OPENCV_VERSION).lib;opencv_legacy$(OPENCV_VERSION).lib;opencv_imgproc$(OPENCV_VERSION).lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)build\x64\vc14\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Message>Copy .DLL to output directory</Message>
+      <Command>
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_ffmpeg$(OPENCV_VERSION)_64.dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_core$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_highgui$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(OPENCV_DIR)build\x64\vc14\bin\opencv_imgproc$(OPENCV_VERSION).dll" "$(OutDir)"
+        copy "$(TBB_DIR)\intel64\vc14\tbb.dll" "$(OutDir)"
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="etc\configs\ratognize.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\blob.cpp" />
+    <ClCompile Include="src\color.cpp" />
+    <ClCompile Include="src\cvutils.cpp" />
+    <ClCompile Include="src\datetime.cpp" />
+    <ClCompile Include="src\cage.cpp" />
+    <ClCompile Include="src\ini.cpp" />
+    <ClCompile Include="src\input.cpp" />
+    <ClCompile Include="src\light.cpp" />
+    <ClCompile Include="src\output_text.cpp" />
+    <ClCompile Include="src\output_video.cpp" />
+    <ClCompile Include="src\ratognize.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\barcode.h" />
+    <ClInclude Include="src\blob.h" />
+    <ClInclude Include="src\color.h" />
+    <ClInclude Include="src\constants.h" />
+    <ClInclude Include="src\cvutils.h" />
+    <ClInclude Include="src\datetime.h" />
+    <ClInclude Include="src\cage.h" />
+    <ClInclude Include="src\ini.h" />
+    <ClInclude Include="src\input.h" />
+    <ClInclude Include="src\light.h" />
+    <ClInclude Include="src\log.h" />
+    <ClInclude Include="src\mfix.h" />
+    <ClInclude Include="src\output_text.h" />
+    <ClInclude Include="src\output_video.h" />
+    <ClInclude Include="src\ratognize.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
