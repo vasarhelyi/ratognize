@@ -1,16 +1,16 @@
 # ratognize
 
-Ratognize is an OpenCV-based cpp tool for colored barcode tracking on video inputs, optimized for simple and fast execution on large scale footages.
+Ratognize is an OpenCV-based video-processing tool for colored blob tracking, optimized for simple and fast execution on large scale footages with many individual blobs to track.
 
 It was developed at Eötvös University, Department of Biological Physics, throughout the [EU ERC COLLMOT Research Grant](https://hal.elte.hu/flocking) for tracking painted animals (rats first, hence the name) for several hours, days or even months (don't worry, they were safe and treated well, we are still friends).
 
-Ratognize is the second element of a toolchain that should be used together to perform multiple colored object tracking on multiple videos (possibly on supercomputers) simultaneously and smoothly:
+Ratognize is the second element of a toolchain that should be used together to perform multiple colored object tracking on multiple videos (possibly on supercomputers) simultaneously and smoothly. Here is the total recommended workflow:
 
 1. Create your color definitions with [ColorWheelHSV](https://github.com/vasarhelyi/ColorWheelHSV)
-2. Setup and run _ratognize_ to get .blob data for all your defined colors.
-3. Run _trajognize_ to get .barcode data for all the detected blobs.
-4. Run _trajognize statistics_ to analyze your data automatically.
-5. If you have multiple video files to analyze, run _trajognize sum_ to
+2. Setup and run **ratognize** to get `.blob` data for all your defined colors.
+3. Run **trajognize** to get `.barcode` data for all the detected blobs.
+4. Run **trajognize statistics** to analyze your data automatically.
+5. If you have multiple video files to analyze, run **trajognize sum** to
    summarize data for all individual threads.
 
 
@@ -25,16 +25,16 @@ However, the code was created for researchers by researchers, so sorry if it doe
 Any recommendation or help is welcome!
 
 
-#usage
+# usage
 
 To run ratognize, it is recommended to read and setup the sample ini file 'ratognize.ini', run ratognize and then check the output files.
 
 
-##definitions
+## definitions
 
-* _blob_ - a blob is a single solid-colored area on an image that can be detected by ratognize with high efficiency.
+* **blob** - a blob is a single solid-colored area on an image that can be detected by ratognize with high efficiency.
 
-* _barcode_ - a barcode consists of several blobs next to each other in a row.
+* **barcode** - a barcode consists of several blobs next to each other in a row.
   each object you want to track must have a colored barcode on it, consisting
   of 3-4-5 blobs, depending on the total number of objects to be tracked.
   Barcodes should be unique, even if read backwards (RGB == BGR).
