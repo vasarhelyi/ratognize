@@ -27,7 +27,9 @@ Any recommendation or help is welcome!
 
 # usage
 
-To run ratognize, it is recommended to read and setup the sample ini file 'ratognize.ini', run ratognize and then check the output files.
+For minimal usage instructions, run `ratognize --help`.
+
+To setup ratognize properly, read and update the sample ini file `etc/configs/ratognize.ini`.
 
 
 ## definitions
