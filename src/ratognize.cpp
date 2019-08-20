@@ -100,27 +100,27 @@ int OnInit(int argc, char *argv[]) {
         args.append(" ");
         args.append(argv[i]);
         if (*argv[i] == '-') {
-            if (strcmp(argv[i], "-inifile") == 0 && i < argc - 1)
+            if (strcmp(argv[i], "--inifile") == 0 && i < argc - 1)
                 strcpy(cs.inifile, argv[++i]);
-            else if (strcmp(argv[i], "-inputvideofile") == 0 && i < argc - 1)
+            else if (strcmp(argv[i], "--inputvideofile") == 0 && i < argc - 1)
                 strcpy(cs.inputvideofile, argv[++i]);
-            else if (strcmp(argv[i], "-dayssincelastpaint") == 0
+            else if (strcmp(argv[i], "--dayssincelastpaint") == 0
                     && i < argc - 1) {
                 cs.dayssincelastpaint = atoi(argv[++i]);
                 tempDSLP = true;
-            } else if (strcmp(argv[i], "-help") == 0) {
-                cout << "Usage: ratognize -param1 [filename] -param2 [filename] ..., " << endl << 
+            } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+                cout << "Usage: ratognize --param1 [filename] --param2 [filename] ..., " << endl <<
                         "       where paramN can be 'inifile', 'inputvideofile', 'dayssincelastpaint'" << endl << 
                         "       All settings override default and .ini file values." << endl;
                 return 1;
             } else {
                 cout << "Unknown option in parameter " << i <<
-                        ". Try '-help' if it is not a typo." << endl;
+                        ". Try '--help' if it is not a typo." << endl;
                 return 2;
             }
         } else                  // odd parameter is not option
         {
-            cout << "parameter " << i << " is bad. Try '-help'" << endl;
+            cout << "parameter " << i << " is bad. Try '--help'" << endl;
             return 3;
         }
     }
