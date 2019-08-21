@@ -16,17 +16,19 @@ Hint: [this github gist](https://gist.github.com/arthurbeggs/06df46af94af7f26151
 
 * Using [CUDA](https://developer.nvidia.com/cuda-zone) is also recommended for speedup.
 
-* Finally, [ffmpeg](https://ffmpeg.org/) is also needed to get proper video outputs. Furthermore, to use it with CMake smoothly, you should also install the followings:
-
-```
-sudo apt install -y libavcodec-dev libavformat-dev libavdevice-dev libavfilter-dev
-```
+* Finally, [ffmpeg](https://ffmpeg.org/) is also needed to get proper video outputs. 
 
 The code base was tested both under Linux (with gcc) and Windows (with Visual Studio) and should run smoothly, although I know it never does. Feel free to ask and please help me if you have suggestions for improvement. 
 
 ## linux 
 
-For Linux, just run `bootstrap.sh`, go to the `build` directory and run `make`.
+To use ffmpeg with CMake smoothly, you should first install the followings:
+
+```
+sudo apt install -y libavcodec-dev libavformat-dev libavdevice-dev libavfilter-dev
+```
+
+If you installed all prerequisits, just run `bootstrap.sh`, go to the `build` directory and run `make`.
 
 ## windows
 
