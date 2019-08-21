@@ -12,7 +12,7 @@ It was developed at Eötvös University, Department of Biological Physics, throu
 ## prerequisites
 
 * The code relies on OpenCv 2.x, you should install that first (yes, I know, it is old, I will upgrade only if you really need it).
-Hint: [this github gist](https://gist.github.com/arthurbeggs/06df46af94af7f261513934e56103b30) seems to be a smooth way to go.
+Hint: [this github gist](https://gist.github.com/arthurbeggs/06df46af94af7f261513934e56103b30) seems to be a smooth way to go (on linux).
 
 * Using [CUDA](https://developer.nvidia.com/cuda-zone) is also recommended for speedup.
 
