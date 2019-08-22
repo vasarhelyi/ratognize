@@ -327,12 +327,12 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
         sprintf_s(tempstr, sizeof(tempstr), "DELETED");
         color = CV_RGB(0, 0, 0);
         tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 1, color, 1);       // using narrow font
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 1);       // using narrow font
         // changedid: LIGHT GREEN narrow
         sprintf_s(tempstr, sizeof(tempstr), "CHANGEDID");
         color = CV_RGB(128, 255, 128);
         tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_VECTOR0, 1, color, 1);       // using narrow font
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_VECTOR0, 0.8, color, 1);       // using narrow font
         // debug: PURPLE
         sprintf_s(tempstr, sizeof(tempstr), "DEBUG");
         color = CV_RGB(128, 0, 128);
