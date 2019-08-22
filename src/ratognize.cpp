@@ -160,7 +160,11 @@ int OnInit(int argc, char *argv[]) {
     }
     // and create it if needed
     outfile.str("");
+#ifdef ON_LINUX
     outfile << "mkdir -p " << cs.outputdirectory;
+#else
+    outfile << "mkdir " << cs.outputdirectory;
+#endif
     system(outfile.str().c_str());      // TODO: does it work on linux??? \,/ characters, etc.
 
     // define input/output file names

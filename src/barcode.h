@@ -4,12 +4,14 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
+#include "constants.h"
+
 #define BARCODETAG ".barcodes"
 
 // a barcode (only loaded from trajognize output in this version)
 class cBarcode {
   public:
-    char strid[5];              // name id string
+    char strid[MAXMBASE + 1];              // name id string
     cv::Point2d mCenter;       // barcode center [pixels].
     double mOrientation;        // The orientation angle of the particle [rad].
     double mAxisA;              // barcode major axis, assuming elliptical shape [pixel]

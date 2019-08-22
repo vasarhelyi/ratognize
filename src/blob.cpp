@@ -62,8 +62,12 @@ void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
     cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
             CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
-    // Iterate over first blobs (allow for more than final number, but not infinitely)
-    while (j < contours.size() && mColor[i].mNumBlobsFound < cs->mRats * 20) {
+    // Iterate over first blobs 
+    for (j = 0; j < contours.size(); j++) {
+        // allow for more than final number, but not infinitely
+        if (mColor[i].mNumBlobsFound >= cs->mRats * 20) {
+            break;
+        }
         // Compute the moments
         moments = cv::moments(contours[j]);
 
@@ -146,8 +150,12 @@ void FindMDorRatBlobs(cv::Mat &srcBin, cCS* cs, tBlob& mParticles,
     cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
             CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
-    // Iterate over blobs (no need to have more than ID's)
-    while (j < contours.size() && (int) mParticles.size() < cs->mRats * 2) {
+    // Iterate over blobs 
+    for (j = 0; j < contours.size();j++) {
+        // (no need to have more than ID's)
+        if ((int)mParticles.size() >= cs->mRats * 2) {
+            break;
+        }
         // Compute the moments
         moments = cv::moments(contours[j]);
 

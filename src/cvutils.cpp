@@ -91,7 +91,7 @@ void FilterMotion(cv::Mat &srcColor, cv::Mat &movingAverage,
         cv::Mat &dstGrey, double mdAlpha, int mdThreshold) {
     //Images to use in the program.
     cv::Mat difference;
-    cv::Mat *channels = NULL;
+    std::vector<cv::Mat> channels;
 
     // create diff image
     difference = cvCreateImageOnce(difference, srcColor.size(),

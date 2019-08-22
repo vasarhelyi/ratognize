@@ -21,7 +21,11 @@ void WriteLogFileHeader(cCS* cs, std::string args, std::ofstream& ofslog) {
 	// store ini file
 	char cc[3 * MAXPATH];
 	sprintf_s(cc, sizeof(cc),
+#ifdef ON_LINUX
 		cs->bProcessText ? "cp %s %s%s" BARCODETAG ".ini" : "cp %s %s%s.ini",
+#else
+		cs->bProcessText ? "copy %s %s%s" BARCODETAG ".ini" : "copy %s %s%s.ini",
+#endif
 		cs->inifile, cs->outputdirectory, cs->outputfilecommon);
 	system(cc); // TODO: does it work on linux??? \,/ characters, etc.
 
