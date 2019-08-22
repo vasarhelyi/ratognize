@@ -125,7 +125,7 @@ void FindHSVBlobs(cv::Mat &HSVimage, int i, cv::Mat &filterimage,
 	}
 	// show debug images before they are modified by the contour finding method
 	if (cs->bShowDebugVideo) {
-		sprintf(cc, "c%d-%s", i, mColor[i].name);
+		sprintf_s(cc, sizeof(cc), "c%d-%s", i, mColor[i].name);
 		cv::imshow(cc, filterimage);
 	}
     FindSubBlobs(filterimage, i, mColor, cs, mBlobParticles, currentframe, ofslog);

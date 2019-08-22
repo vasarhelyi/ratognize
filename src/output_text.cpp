@@ -20,7 +20,7 @@ void WriteLogFileHeader(cCS* cs, std::string args, std::ofstream& ofslog) {
 
 	// store ini file
 	char cc[3 * MAXPATH];
-	sprintf(cc,
+	sprintf_s(cc, sizeof(cc),
 		cs->bProcessText ? "cp %s %s%s" BARCODETAG ".ini" : "cp %s %s%s.ini",
 		cs->inifile, cs->outputdirectory, cs->outputfilecommon);
 	system(cc); // TODO: does it work on linux??? \,/ characters, etc.
@@ -129,7 +129,7 @@ void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase,
     int oldDSLP = cs->dayssincelastpaint;
     // open and truncate output file
     char cc[3 * MAXPATH];
-    sprintf(cc, "%s%s.colors", cs->outputdirectory, cs->outputfilecommon);
+    sprintf_s(cc, sizeof(cc), "%s%s.colors", cs->outputdirectory, cs->outputfilecommon);
     fadefile.open(cc, std::ios::out | std::ios::trunc);
 
     // save params

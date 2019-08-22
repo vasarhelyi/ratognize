@@ -9,7 +9,7 @@
 // a barcode (only loaded from trajognize output in this version)
 class cBarcode {
   public:
-    char strid[4];              // name id string
+    char strid[5];              // name id string
     cv::Point2d mCenter;       // barcode center [pixels].
     double mOrientation;        // The orientation angle of the particle [rad].
     double mAxisA;              // barcode major axis, assuming elliptical shape [pixel]

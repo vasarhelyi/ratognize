@@ -105,7 +105,7 @@ bool SetDSLP(int* dayssincelastpaint, timed_t inputvideostarttime, std::list<tim
     while (it != mPaintDates.end() && (*it) < inputvideostarttime) {
         it++;
     }
-    printf("%ld %lf\n", (*it), inputvideostarttime);
+
     // error, date is earlier than first paint date
     if (it == mPaintDates.begin()) {
         LOG_ERROR("First date in paint date file is already after the date found in the inputvideo file name.");

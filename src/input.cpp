@@ -61,7 +61,7 @@ bool ReadNextBarcodesFromFile(std::ifstream& ifs, tBarcode& mBarcodes, cCS* cs, 
             switch (i) {
                 // ID
             case 0:
-                strcpy(barcode.strid, token.c_str());
+                strcpy_s(barcode.strid, sizeof(cBarcode::strid), token.c_str());
                 break;
                 // centerx
             case 1:

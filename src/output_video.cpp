@@ -66,7 +66,7 @@ void InitVisualOutput(cCS* cs, cv::Size framesize, cv::Size framesizeROI,
 	}
 	if (bFramesizeMismatch) {
 		std::cout << "  WARNING: input framesize mismatch, height or width should be multiples of 8. Writing output will be slower." << std::endl;
-		outputimage8x = cvCreateImage(framesize8x, IPL_DEPTH_8U, 3);    // output image with corrected size
+		outputimage8x = cv::Mat(framesize8x.height, framesize8x.width, CV_8UC3);    // output image with corrected size
 	}
 
 	// init output video with ROI or non-ROI framesize
@@ -271,7 +271,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
                                 (*itoldb).mCenter.x,
                                 (*itb).mCenter.y - (*itoldb).mCenter.y);
                         char tempstr[256];
-                        sprintf(tempstr, ",%d", vel);
+                        sprintf_s(tempstr, sizeof(tempstr), ",%d", vel);
                         tmppoint.x += 50;
                         cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
                     }
@@ -299,66 +299,66 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
         tmppoint.y = 40;
         // color
         // fullfound: RED
-        sprintf(tempstr, "FULLFOUND");
+        sprintf_s(tempstr, sizeof(tempstr), "FULLFOUND");
         color = CV_RGB(255, 0, 0);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // fullnocluster: DARK RED
-        sprintf(tempstr, "FULLNOCLUSTER");
+        sprintf_s(tempstr, sizeof(tempstr), "FULLNOCLUSTER");
         color = CV_RGB(128, 0, 0);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // partlyfound: PINK
-        sprintf(tempstr, "PARTLYFOUND_FROM_TDIST");
+        sprintf_s(tempstr, sizeof(tempstr), "PARTLYFOUND_FROM_TDIST");
         color = CV_RGB(255, 128, 128);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // chosen: WHITE
-        sprintf(tempstr, "CHOSEN");
+        sprintf_s(tempstr, sizeof(tempstr), "CHOSEN");
         color = CV_RGB(255, 255, 255);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // virtual+chosen: YELLOW
-        sprintf(tempstr, "VIRTUAL");
+        sprintf_s(tempstr, sizeof(tempstr), "VIRTUAL");
         color = CV_RGB(255, 255, 0);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // deleted: BLACK narrow
-        sprintf(tempstr, "DELETED");
+        sprintf_s(tempstr, sizeof(tempstr), "DELETED");
         color = CV_RGB(0, 0, 0);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 1, color, 1);       // using narrow font
         // changedid: LIGHT GREEN narrow
-        sprintf(tempstr, "CHANGEDID");
+        sprintf_s(tempstr, sizeof(tempstr), "CHANGEDID");
         color = CV_RGB(128, 255, 128);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_VECTOR0, 1, color, 1);       // using narrow font
         // debug: PURPLE
-        sprintf(tempstr, "DEBUG");
+        sprintf_s(tempstr, sizeof(tempstr), "DEBUG");
         color = CV_RGB(128, 0, 128);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // color2
         tmppoint.y += tmppoint.x;
         // sharesblob: GREEN
-        sprintf(tempstr, "SHARESBLOB");
+        sprintf_s(tempstr, sizeof(tempstr), "SHARESBLOB");
         color = CV_RGB(50, 255, 0);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // sharesblob: BLUE
-        sprintf(tempstr, "SHARESID");
+        sprintf_s(tempstr, sizeof(tempstr), "SHARESID");
         color = CV_RGB(50, 0, 255);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // sharesblob: LIGHT BLUE
-        sprintf(tempstr, "SHARESBLOB & SHARESID");
+        sprintf_s(tempstr, sizeof(tempstr), "SHARESBLOB & SHARESID");
         color = CV_RGB(50, 255, 255);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
 
         // scale bar
         tmppoint.y += tmppoint.x;
-        sprintf(tempstr, "100 px");
+        sprintf_s(tempstr, sizeof(tempstr), "100 px");
         color = CV_RGB(255, 255, 255);
         tmppoint.y += tmppoint.x;
         cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
@@ -381,9 +381,9 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
             if (!(*itb).mFix || ((*itb).mFix & MFIX_DELETED))
                 continue;
             if (strcmp((*itb).strid, pair_str[0]) == 0) {
-                sprintf(tempstr, "1");
+                sprintf_s(tempstr, sizeof(tempstr), "1");
             } else if (strcmp((*itb).strid, pair_str[1]) == 0) {
-                sprintf(tempstr, "2");
+                sprintf_s(tempstr, sizeof(tempstr), "2");
             } else
                 continue;
             tmppoint.x = (int) (*itb).mCenter.x;
@@ -405,7 +405,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
         rawtime = (time_t) rawtimed;
         // set hipervideo parameters
         videotime = localtime(&rawtime);
-		sprintf(tempstr, COPYRIGHTSTRING "%04d-%02d-%02d %02d:%02d:%02d.%03d #%05d (%s)",
+		sprintf_s(tempstr, sizeof(tempstr), COPYRIGHTSTRING "%04d-%02d-%02d %02d:%02d:%02d.%03d #%05d (%s)",
 				videotime->tm_year + 1900, videotime->tm_mon + 1, videotime->tm_mday,
 				videotime->tm_hour, videotime->tm_min, videotime->tm_sec,
 				(int)(1000.0 * (rawtimed - rawtime)), currentframe,
@@ -447,7 +447,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
     // output .jpg screenshot for hiper-speeded video
     if (cs->bWriteVideo && ((currentframe % cs->outputscreenshotskipfactor) == 0)) {
         char cc[2048];
-        sprintf(cc,
+        sprintf_s(cc, sizeof(cc),
                 cs->
                 bProcessText ? "%s%s" BARCODETAG "_%08d.jpg" :
                 "%s%s_%08d.jpg", cs->outputdirectory, cs->outputfilecommon,
@@ -460,7 +460,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
             && currentframe <= hipervideoframeend
             && (currentframe % hipervideoskipfactor) == 0) {
         char cc[2048];
-        sprintf(cc,
+        sprintf_s(cc, sizeof(cc),
                 cs->
                 bProcessText ? "%s%s" BARCODETAG "_hiper_%08d.jpg" :
                 "%s%s_hiper_%08d.jpg", cs->outputdirectory,

@@ -77,14 +77,14 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
         // input files
         } else if (sscanf(str.data(), "paintdatefile=\"%[^\"]s\"", cc) == 1
                 && !cs->paintdatefile[0]) {
-            strcpy(tempcs.paintdatefile, cc);
+            strcpy_s(tempcs.paintdatefile, MAXPATH, cc);
         } else if (sscanf(str.data(), "inputvideofile=\"%[^\"]s\"", cc) == 1
                 && !cs->inputvideofile[0]) {
-            strcpy(tempcs.inputvideofile, cc);
+            strcpy_s(tempcs.inputvideofile, MAXPATH, cc);
         // output directory
         } else if (sscanf(str.data(), "outputdirectory=\"%[^\"]s\"", cc) == 1
                 && !cs->outputdirectory[0]) {
-            strcpy(tempcs.outputdirectory, cc);
+            strcpy_s(tempcs.outputdirectory, MAXPATH, cc);
 		// generals
         } else if (sscanf(str.data(), "mRats=%d", &i) == 1) {
             tempcs.mRats = i;
@@ -207,7 +207,7 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
         // colors (1-5 in file and display, 0-4 here)
         } else if (sscanf(str.data(), "mUse%d=%s %d", &ii, cc, &i) == 3) {
             mColor[ii].mUse = (i == 1);
-            strcpy(mColor[ii].name, cc);
+            strcpy_s(mColor[ii].name, 10, cc);
         } else if (sscanf(str.data(), "mColorHSV%d=%d %d %d", &ii, &i, &j,
                 &k) == 4) {
             tempccc.mColor[ii].mColorHSV = cvScalar(i, j, k);
@@ -247,7 +247,7 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
 		mColorDataBase[light].push_back(tempccc);
 	}
     if (mColorDataBase[DAYLIGHT].empty() || mColorDataBase[NIGHTLIGHT].empty()) {
-        LOG_ERROR("Read error, not enough colors specified; D: %ld, N: %ld",
+        LOG_ERROR("Read error, not enough colors specified; D: %zd, N: %zd",
                 mColorDataBase[DAYLIGHT].size(),
                 mColorDataBase[NIGHTLIGHT].size());
         return false;
