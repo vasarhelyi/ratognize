@@ -1,10 +1,8 @@
 #ifndef HEADER_BLOB
 #define HEADER_BLOB
 
+#include <opencv2/opencv.hpp>
 #include <vector>
-
-#include <cv.h>
-#include <cxcore.h>
 
 #include "color.h"
 #include "ini.h"
@@ -13,7 +11,7 @@
 class cBlob {
   public:
     int index;                  // color index
-    CvPoint2D64f mCenter;       //!< Particle center [pixels].
+    cv::Point2d mCenter;          //!< Particle center [pixels].
     double mOrientation;        //!< The orientation angle of the particle [rad].
     double mArea;               //!< Particle area [pixels^2].
     double mRadius;             //!< Particle radius, assuming circular shape [pixel]
@@ -54,7 +52,7 @@ typedef std::vector < cBlob > tBlob;
  * \param moments   the calculated moments of the blob
  * \param bSkew     if true, skew parameters are also calculated
  */
-void FillParticleFromMoments(cBlob* particle, CvMoments* moments, bool bSkew);
+void FillParticleFromMoments(cBlob* particle, cv::Moments &moments, bool bSkew);
 
 /**
  * Finds all blobs on a binary image belonging to a given color.
@@ -67,7 +65,7 @@ void FillParticleFromMoments(cBlob* particle, CvMoments* moments, bool bSkew);
  * \param currentframe  the current video frame index
  * \param ofslog  output log file stream
  */
-void FindSubBlobs(IplImage* srcBin, int i, cColor* mColor, cCS* cs,
+void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
         tBlob& mBlobParticles, int currentframe, std::ofstream& ofslog);
 
 /**
@@ -85,7 +83,7 @@ void FindSubBlobs(IplImage* srcBin, int i, cColor* mColor, cCS* cs,
  * \param ofslog      output log file stream
  *
  */
-void FindHSVBlobs(IplImage * HSVimage, int i, IplImage * filterimage,
+void FindHSVBlobs(cv::Mat &HSVimage, int i, cv::Mat &filterimage,
 		cColor* mColor, cCS* cs,  tBlob& mBlobParticles,
 		int currentframe, std::ofstream& ofslog);
 
@@ -97,12 +95,12 @@ void FindHSVBlobs(IplImage * HSVimage, int i, IplImage * filterimage,
  * \param mParticles    structure holding the found blobs
  * \param currentframe  the current video frame index
  * \param ofslog        output log file stream
- * 
+ *
  * Note that srcBin is modified due to the inner contour finding method.
  */
-void FindMDorRatBlobs(IplImage * srcBin, cCS* cs, tBlob& mParticles, 
+void FindMDorRatBlobs(cv::Mat &srcBin, cCS* cs, tBlob& mParticles,
 		int currentframe, std::ofstream& ofslog);
-		
+
 /**
  * Filter background and return remaining image and its 'rat' blobs found.
  *
@@ -116,9 +114,9 @@ void FindMDorRatBlobs(IplImage * srcBin, cCS* cs, tBlob& mParticles,
  * \param mParticles    structure holding the found non-bacground blobs
  * \param currentframe  the current video frame index
  * \param ofslog        output log file stream
- * 
+ *
  */
-void DetectRats(IplImage * hsvimage, IplImage * maskimage, tColor* mBGColor,  
+void DetectRats(cv::Mat &hsvimage, cv::Mat &maskimage, tColor* mBGColor,
 		cCS* cs, tBlob& mParticles, int currentframe, std::ofstream& ofslog);
 
 #endif

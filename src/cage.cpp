@@ -15,14 +15,15 @@
 // should be called (before ROI is defined) to detect RED LED state
 // avg intensity sets day/night light, but red LED detection can change it to EXTRA/STRANGE
 // param: HSV image converted from smoothinputimage
-bool ReadDayNightLED(IplImage * hsv, IplImage * inputimage, std::ofstream& ofslog,
-		cCS* cs, std::list<cColorSet>* mColorDataBase,  cColor* mColor, 
-		tColor* mBGColor, lighttype_t* mLight, 
+bool ReadDayNightLED(cv::Mat &hsv, cv::Mat &inputimage, std::ofstream& ofslog,
+		cCS* cs, std::list<cColorSet>* mColorDataBase,  cColor* mColor,
+		tColor* mBGColor, lighttype_t* mLight,
 		timed_t inputvideostarttime, int currentframe) {
     static const int minLEDblobsize = 50; // it used to be 100 but 50 is better according to sample_trial_run measurements
     static lighttype_t lastLight = UNINITIALIZEDLIGHT;
     const int imsize = 200;     // 200 is OK to fit all cage movements without problems
     int isdaylight = 0;         // quorum response counter for RGB channels
+	cv::Mat hsvroi;
 
     // calculate average intensity of image. This hopefully clearly separates DAY and NIGHT light conditions.
     // threshold values are determined from avg intensity histograms of 70 random videos:
@@ -32,8 +33,8 @@ bool ReadDayNightLED(IplImage * hsv, IplImage * inputimage, std::ofstream& ofslo
     // R - 111
     // G - 100
     // B - 80
-    CvScalar avgBGR = cvAvg(inputimage);
-    // check red 
+    CvScalar avgBGR = cv::mean(inputimage);
+    // check red
     if (avgBGR.val[2] > 111)
         isdaylight++;
     // check green
@@ -44,54 +45,39 @@ bool ReadDayNightLED(IplImage * hsv, IplImage * inputimage, std::ofstream& ofslo
         isdaylight++;
 
     // set smaller image ROI to speed up calculation
-    CvRect rect =
-            cvRect(std::max(cs->mLEDPos.x -
-                    (inputimage->roi ? inputimage->roi->xOffset : 0) -
-                    imsize / 2, 0),
-            std::max(cs->mLEDPos.y -
-                    (inputimage->roi ? inputimage->roi->yOffset : 0) -
-                    imsize / 2, 0),
+    CvRect rect = cvRect(
+			std::max(cs->mLEDPos.x - imsize / 2, 0),
+            std::max(cs->mLEDPos.y - imsize / 2, 0),
             imsize, imsize);
-    cvSetImageROI(hsv, rect);
-    //cvShowImage("debug", hsv);
-    static IplImage *filterimage = NULL;
-    filterimage = cvCreateImageOnce(filterimage, cvGetSize(hsv), 8, 1, false);  // no need to zero it
+    hsvroi = hsv(rect);
+    //cv::imshow("debug", hsv);
+    static cv::Mat filterimage;
+    filterimage = cvCreateImageOnce(filterimage, hsvroi.size(), 8, 1, false);  // no need to zero it
     // find hsv blob
-    cvFilterHSV2(filterimage, hsv, &cs->mLEDColor.mColorHSV,
-            &cs->mLEDColor.mRangeHSV);
-    cvDilate(filterimage, filterimage, NULL, 2);
-    cvErode(filterimage, filterimage, NULL, 2);
+    cvFilterHSV(filterimage, hsvroi, cs->mLEDColor.mColorHSV,
+            cs->mLEDColor.mRangeHSV);
+    cv::dilate(filterimage, filterimage, cv::Mat(), cv::Point(-1, -1), 2);
+    cv::erode(filterimage, filterimage, cv::Mat(), cv::Point(-1, -1), 2);
     if (cs->bShowDebugVideo)
-        cvShowImage("LED", filterimage);
+        cv::imshow("LED", filterimage);
+
     // Init blob extraction
-    CvMemStorage *storage = cvCreateMemStorage(0);
-    CvContourScanner blobs =
-            cvStartFindContours(filterimage, storage, sizeof(CvContour),
-            CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-    // init variables
-    CvSeq *contour;
-    CvMoments moments;
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierarchy;
+    cv::Moments moments;
+    unsigned int j = 0;
     double maxmomentsize = 0;
 
+	// find blobs
+    cv::findContours(filterimage, contours, hierarchy, CV_RETR_EXTERNAL,
+            CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
     // Iterate over first blobs (allow for more than final number, but not infinitely)
-    while (1) {
-        // Get next contour (if one exists)
-        contour = cvFindNextContour(blobs);
-        if (!contour)
-            break;
-
+    while (j < contours.size()) {
         // Compute the moments
-        cvMoments(contour, &moments);
+        moments = cv::moments(contours[j]);
         if (moments.m00 > maxmomentsize)
             maxmomentsize = moments.m00;
-        // Release the contour
-        cvRelease((void **) &contour);
     }
-    // release memory and reset settings
-    cvEndFindContours(&blobs);
-    cvReleaseMemStorage(&storage);
-    //cvReleaseImage(&filterimage);
-    cvResetImageROI(hsv);
 
     // if no LED is used, default is NIGHTLIGHT
     if (!cs->bLED) {
@@ -119,7 +105,7 @@ bool ReadDayNightLED(IplImage * hsv, IplImage * inputimage, std::ofstream& ofslo
     // change settings and write change to log file
     if (*mLight != lastLight) {
         if (!SetHSVDetectionParams(*mLight, cs->colorselectionmethod,
-				cs->dayssincelastpaint, inputvideostarttime, 
+				cs->dayssincelastpaint, inputvideostarttime,
 				mColorDataBase, mColor, mBGColor)) {
             return false;
         }
@@ -134,4 +120,3 @@ bool ReadDayNightLED(IplImage * hsv, IplImage * inputimage, std::ofstream& ofslo
     // return without error
     return true;
 }
-

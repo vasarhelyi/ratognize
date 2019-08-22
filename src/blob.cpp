@@ -5,12 +5,12 @@
 #include "cvutils.h"
 
 
-void FillParticleFromMoments(cBlob* particle, CvMoments* moments, bool bSkew) {
+void FillParticleFromMoments(cBlob* particle, cv::Moments &moments, bool bSkew) {
     // compute area, center and radius, assuming circular shape
-    particle->mArea = moments->m00;
+    particle->mArea = moments.m00;
     particle->mRadius = sqrt(particle->mArea / M_PI);
-    particle->mCenter.x = moments->m10 / moments->m00;
-    particle->mCenter.y = moments->m01 / moments->m00;
+    particle->mCenter.x = moments.m10 / moments.m00;
+    particle->mCenter.y = moments.m01 / moments.m00;
 
     // compute orientation from moments
     // coordinate system with angle starting CW from x to y:
@@ -21,20 +21,20 @@ void FillParticleFromMoments(cBlob* particle, CvMoments* moments, bool bSkew) {
     //  |y
     //
     ////////////////
-    particle->mOrientation = atan2(2 * moments->mu11, moments->mu20 - moments->mu02) / 2;       // [-pi/2,pi/2] range
+    particle->mOrientation = atan2(2 * moments.mu11, moments.mu20 - moments.mu02) / 2;       // [-pi/2,pi/2] range
 
     // compute major and minor axis assuming elliptical shape
-    double d1 = (moments->mu20 + moments->mu02) / 2;
-    double d2 = sqrt(4 * moments->mu11 * moments->mu11 + (moments->mu20 -
-                    moments->mu02) * (moments->mu20 - moments->mu02)) / 2;
+    double d1 = (moments.mu20 + moments.mu02) / 2;
+    double d2 = sqrt(4 * moments.mu11 * moments.mu11 + (moments.mu20 -
+                    moments.mu02) * (moments.mu20 - moments.mu02)) / 2;
     double x = sqrt((d1 - d2) / (d1 + d2));     // elongation
     particle->mAxisA = sqrt(particle->mArea / (M_PI * x));
     particle->mAxisB = particle->mAxisA * x;
 
     if (bSkew) {
         // compute skewness along x and y
-        double sx = moments->mu30 / pow(moments->mu20, 1.5);
-        double sy = moments->mu03 / pow(moments->mu02, 1.5);
+        double sx = moments.mu30 / pow(moments.mu20, 1.5);
+        double sy = moments.mu03 / pow(moments.mu02, 1.5);
         // transform to axisA/axisB
         double sA = sx * cos(particle->mOrientation) +
                     sy * sin(Y_IS_DOWN * particle->mOrientation);
@@ -47,37 +47,31 @@ void FillParticleFromMoments(cBlob* particle, CvMoments* moments, bool bSkew) {
     }
 }
 
-void FindSubBlobs(IplImage* srcBin, int i, cColor* mColor, cCS* cs,
+void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
 		tBlob& mBlobParticles, int currentframe, std::ofstream& ofslog) {
     double maxsize = cs->mAreaMin;
 	double minsize = cs->mAreaMax;
     int overmaxcount = 0;
     int undermincount = 0;
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierarchy;
+    cv::Moments moments;
+    unsigned int j = 0;
 
-    // Init blob extraction
-    CvMemStorage *storage = cvCreateMemStorage(0);
-    CvContourScanner blobs = cvStartFindContours(srcBin, storage,
-            sizeof(CvContour), CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
-
-    // init variables
-    CvSeq *contour;
-    CvMoments moments;
+    // find blob contours
+    cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
+            CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
     // Iterate over first blobs (allow for more than final number, but not infinitely)
-    while (mColor[i].mNumBlobsFound < cs->mRats * 20) {
-        // Get next contour (if one exists)
-        contour = cvFindNextContour(blobs);
-        if (!contour)
-            break;
-
+    while (j < contours.size() && mColor[i].mNumBlobsFound < cs->mRats * 20) {
         // Compute the moments
-        cvMoments(contour, &moments);
+        moments = cv::moments(contours[j]);
 
         // store properly sized and shaped particles
         if (moments.m00 >= cs->mAreaMin && moments.m00 <= cs->mAreaMax) {
             // Compute particle parameters
             cBlob newparticle;
-            FillParticleFromMoments(&newparticle, &moments, cs->bBlobE);
+            FillParticleFromMoments(&newparticle, moments, cs->bBlobE);
 
             // check elongation
             if (newparticle.mAxisB && newparticle.mAxisA / newparticle.mAxisB <=
@@ -102,13 +96,7 @@ void FindSubBlobs(IplImage* srcBin, int i, cColor* mColor, cCS* cs,
             if (moments.m00 < minsize)
                 minsize = moments.m00;
         }
-        // Release the contour
-        cvRelease((void **) &contour);
     }
-
-    // Finalize blob extraction
-    cvEndFindContours(&blobs);
-    cvReleaseMemStorage(&storage);
 
     // write to log file, if needed
     if (overmaxcount) {
@@ -121,60 +109,54 @@ void FindSubBlobs(IplImage* srcBin, int i, cColor* mColor, cCS* cs,
     }
 }
 
-void FindHSVBlobs(IplImage * HSVimage, int i, IplImage * filterimage,
+void FindHSVBlobs(cv::Mat &HSVimage, int i, cv::Mat &filterimage,
 		cColor* mColor, cCS* cs,  tBlob& mBlobParticles,
 		int currentframe, std::ofstream& ofslog) {
-	
+
 	char cc[16];
 	// filter with current HSV color into filterimage
-    cvFilterHSV2(filterimage, HSVimage, &mColor[i].mColor.mColorHSV,
-            &mColor[i].mColor.mRangeHSV);
+    cvFilterHSV(filterimage, HSVimage, mColor[i].mColor.mColorHSV,
+            mColor[i].mColor.mRangeHSV);
 	if (cs->mDilateBlob) {
-		cvDilate(filterimage, filterimage, NULL, cs->mDilateBlob);
+		cv::dilate(filterimage, filterimage, cv::Mat(), cv::Point(-1,-1), cs->mDilateBlob);
 	}
 	if (cs->mErodeBlob) {
-		cvErode(filterimage, filterimage, NULL, cs->mErodeBlob);
+		cv::erode(filterimage, filterimage, cv::Mat(), cv::Point(-1,-1), cs->mErodeBlob);
 	}
 	// show debug images before they are modified by the contour finding method
 	if (cs->bShowDebugVideo) {
 		sprintf(cc, "c%d-%s", i, mColor[i].name);
-		cvShowImage(cc, filterimage);
+		cv::imshow(cc, filterimage);
 	}
     FindSubBlobs(filterimage, i, mColor, cs, mBlobParticles, currentframe, ofslog);
 }
 
-void FindMDorRatBlobs(IplImage * srcBin, cCS* cs, tBlob& mParticles, 
+void FindMDorRatBlobs(cv::Mat &srcBin, cCS* cs, tBlob& mParticles,
 		int currentframe, std::ofstream& ofslog) {
     double maxsize = cs->mAreaMin;
     double minsize = cs->mAreaMax;
     int overmaxcount = 0;
     int undermincount = 0;
-    // Init blob extraction
-    CvMemStorage *storage = cvCreateMemStorage(0);
-    CvContourScanner blobs =
-            cvStartFindContours(srcBin, storage, sizeof(CvContour),
-            CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierarchy;
+    cv::Moments moments;
+    unsigned int j = 0;
 
-    // init variables
-    CvSeq *contour;
-    CvMoments moments;
+    // find blob contours
+    cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
+            CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
     // Iterate over blobs (no need to have more than ID's)
-    while ((int) mParticles.size() < cs->mRats * 2) {
-        // Get next contour (if one exists)
-        contour = cvFindNextContour(blobs);
-        if (!contour)
-            break;
-
+    while (j < contours.size() && (int) mParticles.size() < cs->mRats * 2) {
         // Compute the moments
-        cvMoments(contour, &moments);
+        moments = cv::moments(contours[j]);
 
         // store properly sized particles
 		// TODO: separate size restriction for RAT and MD?
         if (moments.m00 >= cs->mdAreaMin && moments.m00 <= cs->mdAreaMax) {
             // Compute particle parameters
             cBlob newparticle;
-            FillParticleFromMoments(&newparticle, &moments, cs->bBlobE);
+            FillParticleFromMoments(&newparticle, moments, cs->bBlobE);
 
             // reset unused variables
             newparticle.index = 0;
@@ -194,13 +176,7 @@ void FindMDorRatBlobs(IplImage * srcBin, cCS* cs, tBlob& mParticles,
             if (moments.m00 < minsize)
                 minsize = moments.m00;
         }
-        // Release the contour
-        cvRelease((void **) &contour);
     }
-
-    // Finalize blob extraction
-    cvEndFindContours(&blobs);
-    cvReleaseMemStorage(&storage);
 
     // write to log file, if needed
     if (overmaxcount)
@@ -211,29 +187,28 @@ void FindMDorRatBlobs(IplImage * srcBin, cCS* cs, tBlob& mParticles,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// filter backgroud and get only high saturation and different hue rat blobs 
-void DetectRats(IplImage * hsvimage, IplImage * maskimage, tColor* mBGColor,
-	cCS* cs, tBlob& mParticles, int currentframe, std::ofstream& ofslog) {
+// filter backgroud and get only high saturation and different hue rat blobs
+void DetectRats(cv::Mat &hsvimage, cv::Mat &maskimage, tColor* mBGColor,
+	   cCS* cs, tBlob& mParticles, int currentframe, std::ofstream& ofslog) {
 	// init variables
-	static IplImage *binary = NULL;
-	binary = cvCreateImageOnce(binary, cvGetSize(hsvimage), IPL_DEPTH_8U, 1, false);    // no need to zero it
+	static cv::Mat binary;
+
+	binary = cvCreateImageOnce(binary, hsvimage.size(), IPL_DEPTH_8U, 1, false);    // no need to zero it
 	// detect background and invert it to detect rats as white blobs
-	cvFilterHSV2(binary, hsvimage, &mBGColor->mColorHSV, &mBGColor->mRangeHSV);
-	cvNot(binary, binary);
+	cvFilterHSV(binary, hsvimage, mBGColor->mColorHSV, mBGColor->mRangeHSV);
+	cv::bitwise_not(binary, binary);
 	// filter noise and possibly enlarge rat blobs
 	if (cs->mErodeRat) {
-		cvErode(binary, binary, 0, cs->mErodeRat);
+		cv::erode(binary, binary, cv::Mat(), cv::Point(-1,-1), cs->mErodeRat);
 	}
 	if (cs->mDilateRat) {
-		cvDilate(binary, binary, 0, cs->mDilateRat);
+		cv::dilate(binary, binary, cv::Mat(), cv::Point(-1,-1), cs->mDilateRat);
 	}
     // debug show
     if (cs->bShowDebugVideo)
-        cvShowImage("rats", binary);
+        cv::imshow("rats", binary);
     // copy to mask image
-    cvCopy(binary, maskimage);
+    binary.copyTo(maskimage);
     // find rat blobs
     FindMDorRatBlobs(binary, cs, mParticles, currentframe, ofslog);
-    // release memory
-    //cvReleaseImage(&binary);
 }

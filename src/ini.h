@@ -59,7 +59,7 @@ class cCS {
 	int mDilateRat;
 	// day/night switch
     bool bLED;                  // do we use it at all or Day settings by default?
-    CvPoint mLEDPos;            // X,Y coordinate of the red LED switch
+    cv::Point mLEDPos;            // X,Y coordinate of the red LED switch
     tColor mLEDColor;           // color of the LED blob
     // general
     char inifile[MAXPATH];      // this is not read from .ini file but defines it (can be overwritten from command line arg.)
@@ -83,7 +83,7 @@ class cCS {
     int firstframe;
     int lastframe;
     int displaywidth;
-    CvRect imageROI;
+    cv::Rect imageROI;
     int dayssincelastpaint;     // colors are stored in an external list, here only day is specified since last paint
     color_interpolation_t colorselectionmethod;   // interpolate(0), fit_linear(1) or interpolate_date(2)
     int gausssmoothing;
@@ -104,7 +104,7 @@ class cCS {
             LEDdetectionskipfactor(1),
             hipervideostart(0), hipervideoend(0), hipervideoduration(0),
             outputvideotype(OUTPUT_VIDEO_BASIC),
-            firstframe(0), lastframe(0), displaywidth(0), 
+            firstframe(0), lastframe(0), displaywidth(0),
 			//imageROI(?),
             dayssincelastpaint(0), colorselectionmethod(COLOR_FIT_LINEAR),
             gausssmoothing(0),  bInputVideoIsInterlaced(false) {

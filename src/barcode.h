@@ -1,10 +1,8 @@
 #ifndef HEADER_BARCODE
 #define HEADER_BARCODE
 
+#include <opencv2/opencv.hpp>
 #include <vector>
-
-#include <cv.h>
-#include <cxcore.h>
 
 #define BARCODETAG ".barcodes"
 
@@ -12,7 +10,7 @@
 class cBarcode {
   public:
     char strid[4];              // name id string
-    CvPoint2D64f mCenter;       // barcode center [pixels].
+    cv::Point2d mCenter;       // barcode center [pixels].
     double mOrientation;        // The orientation angle of the particle [rad].
     double mAxisA;              // barcode major axis, assuming elliptical shape [pixel]
     double mAxisB;              // barcode minor axis, assuming elliptical shape [pixel]

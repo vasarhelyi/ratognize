@@ -41,7 +41,7 @@ void InterpolateColors(tColor* result, tColor* first, tColor* second, double wpr
 }
 
 bool SetHSVDetectionParams(lighttype_t light, color_interpolation_t method,
-        int dslp, double inputvideostarttime, std::list<cColorSet>* mColorDataBase, 
+        int dslp, double inputvideostarttime, std::list<cColorSet>* mColorDataBase,
 		cColor* mColor, tColor* mBGColor) {
 	// TODO: set extra code for EXTRALIGHT, STRANGELIGHT.
     // we use daylight for extra, nightlight for strange.
@@ -104,11 +104,11 @@ bool SetHSVDetectionParams(lighttype_t light, color_interpolation_t method,
             double w = (double) (dslp - (*itprev).day) / j;    // weight
             double wprev = (double) ((*it).day - dslp) / j;    // weight prev
             for (int i = 0; i < MAXMBASE; i++) {
-				InterpolateColors(&mColor[i].mColor, &(*itprev).mColor[i], 
+				InterpolateColors(&mColor[i].mColor, &(*itprev).mColor[i],
 						&(*it).mColor[i], wprev, w);
             }
 			// Background colors are also interpolated
-			InterpolateColors(mBGColor, &(*itprev).mBGColor, 
+			InterpolateColors(mBGColor, &(*itprev).mBGColor,
 						&(*it).mBGColor, wprev, w);
         } // interpolate
         ////////////////////////////////////////////////////////////////////////
@@ -118,10 +118,10 @@ bool SetHSVDetectionParams(lighttype_t light, color_interpolation_t method,
             LOG_ERROR("Too few points in color dataspace, could not fit line!");
             return false;
         }
-        CvPoint *points =
-                (CvPoint *) malloc(mColorDataBase[light].size() *
+        cv::Point *points =
+                (cv::Point *) malloc(mColorDataBase[light].size() *
                 sizeof(points[0]));
-        //CvPoint2D32f* points = (CvPoint2D32f*)malloc(mColorDataBase[light].size() * sizeof(points[0]));
+        //cv::Point2d* points = (cv::Point2d*)malloc(mColorDataBase[light].size() * sizeof(points[0]));
         //CvMat pointMat =
         //        cvMat(1, (int) mColorDataBase[light].size(), CV_32SC2, points);
         float line[4];
@@ -198,7 +198,7 @@ bool SetHSVDetectionParams(lighttype_t light, color_interpolation_t method,
 				   } else {
 				       mBGColor->mColorHSV.val[j] = (int)(line[3] + line[1]/line[0] * (dslp-line[2]));
 				   }
-				   
+
                  */
                 // fit line on points
                 FitLine(points, k, line);
@@ -261,11 +261,11 @@ bool SetHSVDetectionParams(lighttype_t light, color_interpolation_t method,
         double w = (double) (inputvideostarttime - (*itprev).datetime) / j;     // weight
         double wprev = (double) ((*it).datetime - inputvideostarttime) / j;     // weight prev
         for (int i = 0; i < MAXMBASE; i++) {
-			InterpolateColors(&mColor[i].mColor, &(*itprev).mColor[i], 
+			InterpolateColors(&mColor[i].mColor, &(*itprev).mColor[i],
 					&(*it).mColor[i], wprev, w);
         }
 		// Background colors are also interpolated
-		InterpolateColors(mBGColor, &(*itprev).mBGColor, 
+		InterpolateColors(mBGColor, &(*itprev).mBGColor,
 					&(*it).mBGColor, wprev, w);
     } // switch method
 

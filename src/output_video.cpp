@@ -15,11 +15,9 @@
 #define COPYRIGHTSTRING "(c) ELTE Department of Biological Physics, RATLAB "
 
 // fonts, frame sizes and video writer
-static CvFont font, narrowfont, copyrightfont;
-static CvSize copyrightTextSize;
-static CvVideoWriter *videowriter;
-static IplImage *outputimage8x;        // copy of ROI area, the image that will be writte to videowriter
-static CvSize framesize8x;             // if framesize is not multiples of 8, it will be adjusted to save video without error
+static cv::VideoWriter videowriter;
+static cv::Mat outputimage8x;        // copy of ROI area, the image that will be writte to videowriter
+static cv::Size framesize8x;             // if framesize is not multiples of 8, it will be adjusted to save video without error
 static bool bFramesizeMismatch = false;
 // hipervideo parameters
 static int hipervideoframestart;
@@ -28,25 +26,20 @@ static int hipervideoskipfactor;
 // pair measurement variables
 char pair_str[2][8];
 
-void InitVisualOutput(cCS* cs, CvSize framesize, CvSize framesizeROI, 
+void drawtorect(cv::Mat & mat, const std::string & str, cv::Rect target, int face, cv::Scalar color, int thickness) {
+    cv::Size rect = cv::getTextSize(str, face, 1.0, thickness, 0);
+    double scalex = (double)target.width / (double)rect.width;
+    double scaley = (double)target.height / (double)rect.height;
+    double scale = std::min(scalex, scaley);
+    int marginx = scale == scalex ? 0 : (int)((double)target.width * (scalex - scale) / scalex * 0.5);
+    int marginy = scale == scaley ? 0 : (int)((double)target.height * (scaley - scale) / scaley * 0.5);
+    cv::putText(mat, str, cv::Point(target.x + marginx, target.y + target.height - marginy), face, scale, color, thickness, 8, false);
+}
+
+void InitVisualOutput(cCS* cs, cv::Size framesize, cv::Size framesizeROI,
 		double fps, timed_t inputvideostarttime) {
 	std::ostringstream outfile;
 	int i;
-
-	// init standard fonts
-	cvInitFont(&font, CV_FONT_VECTOR0, 0.8, 0.8, 0, 2);
-	cvInitFont(&narrowfont, CV_FONT_VECTOR0, 0.8, 0.8, 0, 1);
-	// init copyright font
-	i = 20;
-	char ccc[] = COPYRIGHTSTRING "0000-00-00 00-00-00.000 #99999 (NIGHT)";
-	copyrightTextSize = framesizeROI;
-	while (copyrightTextSize.width >= framesizeROI.width) {
-		cvInitFont(&copyrightfont, CV_FONT_VECTOR0, (float)i / 10,
-			(float)i / 10, 0, (i < 7 ? 1 : 2));
-		cvGetTextSize(ccc, &copyrightfont, &copyrightTextSize, 0);
-		i--;
-	}
-	std::cout << "Proper copyright string font size: " << (i + 1) / 10.0 << std::endl;
 
 	// define pair measurement IDs from file name
 	// assuming that filename ends with XXX_YYY.avi where XXX and YYY are the two strids (e.g. RBP)
@@ -81,75 +74,75 @@ void InitVisualOutput(cCS* cs, CvSize framesize, CvSize framesizeROI,
 #ifdef ON_LINUX
 		// use ROI framesize
 		if (cs->bApplyROIToVideoOutput) {
-			videowriter = cvCreateVideoWriter(cs->outputvideofile,
+			videowriter.open(cs->outputvideofile,
 				CV_FOURCC('D', 'I', 'V', '3'), fps, framesizeROI);
 			// use non-ROI framesize
 		}
 		else {
-			videowriter = cvCreateVideoWriter(cs->outputvideofile,
+			videowriter.open(cs->outputvideofile,
 				CV_FOURCC('D', 'I', 'V', '3'), fps, framesize8x);
 		}
 #else
 		// use ROI framesize
 		if (cs->bApplyROIToVideoOutput) {
-			videowriter = cvCreateVideoWriter(cs->outputvideofile,
+			videowriter.open(cs->outputvideofile,
 				CV_FOURCC('D', 'I', 'V', '3'), fps, framesizeROI);
-			//        if (cs->bApplyROIToVideoOutput) videowriter=cvCreateVideoWriter(cs->outputvideofile,0,fps,framesizeROI); // no compression
+			//        if (cs->bApplyROIToVideoOutput) videowriter.open(cs->outputvideofile,0,fps,framesizeROI); // no compression
 			// use non-ROI framesize
 		}
 		else {
-			videowriter = cvCreateVideoWriter(cs->outputvideofile,
+			videowriter.open(cs->outputvideofile,
 				CV_FOURCC('D', 'I', 'V', '3'), fps, framesize8x);
 		}
-		//              else videowriter=cvCreateVideoWriter(cs->outputvideofile,0,fps,framesize8x);  // no compression
+		//              else videowriter.open(cs->outputvideofile,0,fps,framesize8x);  // no compression
 #endif
 	}
-	else {
-		videowriter = NULL;
-	}
-
 	// set hiper video params
 	SetHiperVideoParams(cs, inputvideostarttime, fps);
 }
 
 void DestroyVisualOutput() {
-	if (videowriter) {
-		cvReleaseVideoWriter(&videowriter);
-		videowriter = NULL;
+	if (videowriter.isOpened()) {
+		videowriter.release();
 	}
 }
 
 
-void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs, 
-		tBlob& mBlobParticles, tBlob& mMDParticles, tBlob& mRatParticles, 
+void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
+		tBlob& mBlobParticles, tBlob& mMDParticles, tBlob& mRatParticles,
 		tBarcode& mBarcodes, cColor* mColor, lighttype_t mLight,
-		timed_t inputvideostarttime, int currentframe, CvSize framesize, double fps) {
+		timed_t inputvideostarttime, int currentframe, cv::Size framesize,
+		cv::Size framesizeROI, double fps) {
     //////////////////////////////////////////////////////
     // debug: do not comment out for determining min and max blob sizes
-    //cvPutText(inputimage,"dia: cs->mDiaMin, dist: mDistMax",cvPoint(20+2*cs->mDistMax,20),&font,cvScalar(255,255,255));
-    //cvCircle(inputimage,cvPoint(20,20),mDiaMin/2,cvScalar(255,255,255),2,CV_AA);
-    //cvCircle(inputimage,cvPoint(20+cs->mDistMax,20),cs->mDiaMin/2,cvScalar(255,255,255),2,CV_AA);
-    //cvPutText(inputimage,"dia: cs->mDiaMax, dist: mDistMax",cvPoint(20+2*cs->mDistMax,20+cs->mDistMax),&font,cvScalar(255,255,255));
-    //cvCircle(inputimage,cvPoint(20,20+cs->mDistMax),cs->mDiaMax/2,cvScalar(255,255,255),2,CV_AA);
-    //cvCircle(inputimage,cvPoint(20+cs->mDistMax,20+cs->mDistMax),cs->mDiaMax/2,cvScalar(255,255,255),2,CV_AA);
+    //cv::putText(inputimage,"dia: cs->mDiaMin, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20),&font,1,cv::Scalar(255,255,255));
+    //cvCircle(inputimage,cv::Point(20,20),mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cvCircle(inputimage,cv::Point(20+cs->mDistMax,20),cs->mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cv::putText(inputimage,"dia: cs->mDiaMax, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20+cs->mDistMax),&font,1,cv::Scalar(255,255,255));
+    //cvCircle(inputimage,cv::Point(20,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cvCircle(inputimage,cv::Point(20+cs->mDistMax,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
     //////////////////////////////////////////////////////
 
-    tBlob::iterator it;
-    CvPoint tmppoint;
-    CvScalar color, color2;
+	cv::Mat inputimageROI;
+	tBlob::iterator it;
+    cv::Point tmppoint;
+    cv::Scalar color, color2;
     int dA, dB;
-    //CvSize textSize;
+    //cv::Size textSize;
     char cc[3];
     cc[1] = 0;
 
-    // OUTPUT_VIDEO_MD debug output:
+	// note that we generally write to original image as all coordinates are
+	// given for that frame. However, we create a ROI header for convenience
+
+	// OUTPUT_VIDEO_MD debug output:
     if (cs->outputvideotype & OUTPUT_VIDEO_MD) {
         // plot MDParticles to image with black ellipses
         for (it = mMDParticles.begin(); it != mMDParticles.end(); ++it) {
             tmppoint.x = (int) (*it).mCenter.x;
             tmppoint.y = (int) (*it).mCenter.y;
             color = CV_RGB(50, 50, 50);     // DARK GREY
-            cvEllipse(inputimage, tmppoint, cvSize((int) (*it).mAxisA,
+            cv::ellipse(inputimage, tmppoint, cv::Size((int) (*it).mAxisA,
                             (int) (*it).mAxisB),
                     Y_IS_DOWN * (*it).mOrientation * 180 / M_PI, 0, 360,
                     color, 2);
@@ -164,14 +157,14 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
             tmppoint.x = (int) (*it).mCenter.x;
             tmppoint.y = (int) (*it).mCenter.y;
             color = CV_RGB(150, 150, 150);  // GRAY
-            cvEllipse(inputimage, tmppoint,
-                    cvSize((int)(*it).mAxisA + dA, (int)(*it).mAxisB + dB),
+            cv::ellipse(inputimage, tmppoint,
+                    cv::Size((int)(*it).mAxisA + dA, (int)(*it).mAxisB + dB),
                     Y_IS_DOWN * (*it).mOrientation * 180 / M_PI, 0, 360,
                     color, 2);
             // draw orientation "arrow" as well
             color = CV_RGB(50, 50, 50); // DARKER GRAY
-            cvEllipse(inputimage, tmppoint,
-                    cvSize((int)(*it).mAxisA + dA, (int)(*it).mAxisB + dB),
+            cv::ellipse(inputimage, tmppoint,
+                    cv::Size((int)(*it).mAxisA + dA, (int)(*it).mAxisB + dB),
                     Y_IS_DOWN * (*it).mOrientation * 180 / M_PI, -30, 30,
                     color, 2);
         }
@@ -185,13 +178,13 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
             tmppoint.y = (int) (*it).mCenter.y;
             color = CV_RGB(50, 50, 50);     // DARK GREY
             //cvCircle(inputimage,tmppoint,(int)(*it).mRadius,color,2);
-            //cvEllipse(inputimage,tmppoint,cvSize((int)(*it).mAxisA,(int)(*it).mAxisB),
+            //cv::ellipse(inputimage,tmppoint,cv::Size((int)(*it).mAxisA,(int)(*it).mAxisB),
             //        Y_IS_DOWN*(*it).mOrientation*180/M_PI,0,360,color,2);
             //cvGetTextSize(cc, &font, &textSize,0);
             //tmppoint.x -= textSize.width/2;
             //tmppoint.y += textSize.height/2;
             color = CV_RGB(255, 255, 255);  // WHITE
-            cvPutText(inputimage, cc, tmppoint, &font, color);
+            cv::putText(inputimage, cc, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         }
     }
     // OUTPUT_VIDEO_BARCODES debug output:
@@ -252,7 +245,7 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
                 }
                 // becomes LIGHT BLUE if both above
             }
-            cvEllipse(inputimage, tmppoint, cvSize((int) (*itb).mAxisA,
+            cv::ellipse(inputimage, tmppoint, cv::Size((int) (*itb).mAxisA,
                             (int) (*itb).mAxisB),
                     Y_IS_DOWN * (*itb).mOrientation * 180 / M_PI, 0, 360,
                     color, (!(*itb).mFix
@@ -262,10 +255,9 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
             tmppoint.y +=
                     (int) ((*itb).mAxisA * sin(Y_IS_DOWN *
                             (*itb).mOrientation));
-            cvPutText(inputimage, (*itb).strid, tmppoint, (!(*itb).mFix
-                            || ((*itb).
-                                    mFix & MFIX_DELETED)) ? (&narrowfont)
-                    : (&font), color2);
+            cv::putText(inputimage, (*itb).strid, tmppoint,
+					CV_FONT_HERSHEY_SIMPLEX, 0.8, color2,
+					(!(*itb).mFix || ((*itb).mFix & MFIX_DELETED)) ? 1 : 2);
 
             // show barcode velocity if needed
             if (cs->outputvideotype & OUTPUT_VIDEO_VELOCITY) {
@@ -281,8 +273,7 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
                         char tempstr[256];
                         sprintf(tempstr, ",%d", vel);
                         tmppoint.x += 50;
-                        cvPutText(inputimage, tempstr, tmppoint, &font,
-                                color);
+                        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
                     }
                 }
             }
@@ -296,9 +287,12 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
     // Warning: make sure to be consistent with OUTPUT_VIDEO_BARCODES part
     if (cs->outputvideotype & OUTPUT_VIDEO_BARCODE_COLOR_LEGEND) {
         // text starts at top left of ROI image, or original image?
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvResetImageROI(inputimage);
+        if (cs->bApplyROIToVideoOutput && cs->imageROI.width
+                && cs->imageROI.height) {
+			inputimageROI = inputimage(cs->imageROI);
+		} else {
+			inputimageROI = inputimage;
+		}
 
         char tempstr[256];
         tmppoint.x = 25;
@@ -308,79 +302,76 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
         sprintf(tempstr, "FULLFOUND");
         color = CV_RGB(255, 0, 0);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // fullnocluster: DARK RED
         sprintf(tempstr, "FULLNOCLUSTER");
         color = CV_RGB(128, 0, 0);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // partlyfound: PINK
         sprintf(tempstr, "PARTLYFOUND_FROM_TDIST");
         color = CV_RGB(255, 128, 128);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // chosen: WHITE
         sprintf(tempstr, "CHOSEN");
         color = CV_RGB(255, 255, 255);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // virtual+chosen: YELLOW
         sprintf(tempstr, "VIRTUAL");
         color = CV_RGB(255, 255, 0);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // deleted: BLACK narrow
         sprintf(tempstr, "DELETED");
         color = CV_RGB(0, 0, 0);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &narrowfont, color);       // using narrow font
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 1, color, 1);       // using narrow font
         // changedid: LIGHT GREEN narrow
         sprintf(tempstr, "CHANGEDID");
         color = CV_RGB(128, 255, 128);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &narrowfont, color);       // using narrow font
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_VECTOR0, 1, color, 1);       // using narrow font
         // debug: PURPLE
         sprintf(tempstr, "DEBUG");
         color = CV_RGB(128, 0, 128);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // color2
         tmppoint.y += tmppoint.x;
         // sharesblob: GREEN
         sprintf(tempstr, "SHARESBLOB");
         color = CV_RGB(50, 255, 0);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // sharesblob: BLUE
         sprintf(tempstr, "SHARESID");
         color = CV_RGB(50, 0, 255);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // sharesblob: LIGHT BLUE
         sprintf(tempstr, "SHARESBLOB & SHARESID");
         color = CV_RGB(50, 255, 255);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
 
         // scale bar
         tmppoint.y += tmppoint.x;
         sprintf(tempstr, "100 px");
         color = CV_RGB(255, 255, 255);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         tmppoint.y += tmppoint.x / 2;
-        cvLine(inputimage, tmppoint, cvPoint(tmppoint.x + 100, tmppoint.y),
+        cv::line(inputimageROI, tmppoint, cv::Point(tmppoint.x + 100, tmppoint.y),
                 color, 2);
-        cvLine(inputimage, cvPoint(tmppoint.x, tmppoint.y - 5),
-                cvPoint(tmppoint.x, tmppoint.y + 5), color, 2);
-        cvLine(inputimage, cvPoint(tmppoint.x + 100, tmppoint.y - 5),
-                cvPoint(tmppoint.x + 100, tmppoint.y + 5), color, 2);
-
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvSetImageROI(inputimage, cs->imageROI);
+        cv::line(inputimageROI, cv::Point(tmppoint.x, tmppoint.y - 5),
+                cv::Point(tmppoint.x, tmppoint.y + 5), color, 2);
+        cv::line(inputimageROI, cv::Point(tmppoint.x + 100, tmppoint.y - 5),
+                cv::Point(tmppoint.x + 100, tmppoint.y + 5), color, 2);
     }
-    // OUTPUT_VIDEO_PAIR_ID debug output:
+
+	// OUTPUT_VIDEO_PAIR_ID debug output:
     if (cs->outputvideotype & OUTPUT_VIDEO_PAIR_ID) {
         char tempstr[8];
 
@@ -398,9 +389,11 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
             tmppoint.x = (int) (*itb).mCenter.x;
             tmppoint.y = (int) (*itb).mCenter.y;
             color = CV_RGB(255, 255, 255);
-            cvPutText(inputimage, tempstr, tmppoint, &font, color);
+			// TODO: output to ROI or original image?
+			cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         }
     }
+
     // write date and time on video anyways
     if (inputvideostarttime) {
         time_t rawtime;
@@ -419,83 +412,60 @@ void WriteVisualOutput(IplImage *inputimage, IplImage *smoothinputimage, cCS* cs
 				(mLight == DAYLIGHT ? "DAY" : (mLight == NIGHTLIGHT ? "NIGHT" : \
 				(mLight == EXTRALIGHT ? "EXTRA" : "STRANGE"))));       // TODO: add UNINITIALIZED light if needed
         // text starts at top left of ROI image, or original image?
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvResetImageROI(inputimage);
-        cvPutText(inputimage, tempstr, cvPoint(2,
-                        copyrightTextSize.height + 2), &copyrightfont,
-                cvScalar(255, 255, 255));
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvSetImageROI(inputimage, cs->imageROI);
+        if (cs->bApplyROIToVideoOutput && cs->imageROI.width
+                && cs->imageROI.height) {
+			inputimageROI = inputimage(cs->imageROI);
+		} else {
+			inputimageROI = inputimage;
+		}
+    	drawtorect(inputimageROI, tempstr,
+				cv::Rect(2, 2, framesizeROI.width, framesizeROI.height / 10),
+				CV_FONT_HERSHEY_SIMPLEX, cv::Scalar(255, 255, 255), 2);
+
     }
     // write video frame to file
     if (cs->bWriteVideo == 1
             && ((currentframe % cs->outputvideoskipfactor) == 0)) {
         // only save ROI of image
-        // TODO bug in OpenCV: videowriter only works with original image size, no ROI.
         if (cs->bApplyROIToVideoOutput) {
-            // this will only copy ROI area, and smoothinputimage size is originally framesizeROI so it works (and it is not needed any more)
-            cvCopy(inputimage, smoothinputimage);
-            cvWriteFrame(videowriter, smoothinputimage);
+            videowriter.write(inputimage(cs->imageROI));
         }
         // save with original size
         else {
-            if (cs->imageROI.width && cs->imageROI.height)
-                cvResetImageROI(inputimage);
             // correct image size if needed
             if (bFramesizeMismatch) {
                 CvRect temproi;
                 temproi.x = temproi.y = 0;
                 temproi.width = framesize.width;
                 temproi.height = framesize.height;
-                cvSetImageROI(outputimage8x, temproi);
-                cvCopy(inputimage, outputimage8x);
-                cvResetImageROI(outputimage8x);
-                cvWriteFrame(videowriter, outputimage8x);
+                outputimage8x = inputimage(temproi);
+                videowriter.write(outputimage8x);
             } else
-                cvWriteFrame(videowriter, inputimage);
-            if (cs->imageROI.width && cs->imageROI.height)
-                cvSetImageROI(inputimage, cs->imageROI);
+                videowriter.write(inputimage);
         }
     }
     // output .jpg screenshot for hiper-speeded video
-    if (cs->bWriteVideo
-            && ((currentframe % cs->outputscreenshotskipfactor) == 0)) {
-        // always save with original size
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvResetImageROI(inputimage);
+    if (cs->bWriteVideo && ((currentframe % cs->outputscreenshotskipfactor) == 0)) {
         char cc[2048];
         sprintf(cc,
                 cs->
                 bProcessText ? "%s%s" BARCODETAG "_%08d.jpg" :
                 "%s%s_%08d.jpg", cs->outputdirectory, cs->outputfilecommon,
                 currentframe);
-        cvSaveImage(cc, inputimage);
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvSetImageROI(inputimage, cs->imageROI);
+        cv::imwrite(cc, inputimage);
     }
     // output .jpg screenshot for Mate's hiper-speeded video
     if (hipervideoskipfactor && cs->bWriteVideo
             && currentframe >= hipervideoframestart
             && currentframe <= hipervideoframeend
             && (currentframe % hipervideoskipfactor) == 0) {
-        // always save with original size
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvResetImageROI(inputimage);
         char cc[2048];
         sprintf(cc,
                 cs->
                 bProcessText ? "%s%s" BARCODETAG "_hiper_%08d.jpg" :
                 "%s%s_hiper_%08d.jpg", cs->outputdirectory,
                 cs->outputfilecommon, currentframe);
-        cvSaveImage(cc, inputimage);
-        if (!cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height)
-            cvSetImageROI(inputimage, cs->imageROI);
+        cv::imwrite(cc, inputimage);
     }
 }
 

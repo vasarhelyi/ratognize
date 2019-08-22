@@ -3,9 +3,7 @@
 
 /////////////////////////////////////////////////
 // include OpenCV header files
-#include <cv.h>
-#include <cxcore.h>
-#include <highgui.h>
+#include <opencv2/opencv.hpp>
 
 /////////////////////////////////////////////////
 // include standard C++ libraries
@@ -34,16 +32,16 @@ clock_t measure_duration_start, measure_duration_stop;
 	measure_duration_start = clock(); \
 	 NAME  ; \
 	measure_duration_stop = clock(); \
-	if (cs.bCout) cout << "time:  NAME : " << (((measure_duration_stop - measure_duration_start) * 1000) / CLOCKS_PER_SEC) << " ms" << endl;
+	if (cs.bCout) std::cout << "time:  NAME : " << (((measure_duration_stop - measure_duration_start) * 1000) / CLOCKS_PER_SEC) << " ms" << std::endl;
 #else
 #define MEASURE_DURATION(NAME) \
 	measure_duration_start = clock(); \
 	## NAME ##  ; \
 	measure_duration_stop = clock(); \
-	if (cs.bCout) cout << "time: " #NAME ": " << (((measure_duration_stop - measure_duration_start) * 1000) / CLOCKS_PER_SEC) << " ms" << endl;
+	if (cs.bCout) std::cout << "time: " #NAME ": " << (((measure_duration_stop - measure_duration_start) * 1000) / CLOCKS_PER_SEC) << " ms" << std::endl;
 
 #endif
-// To disable benchmarking, uncomment following line: 
+// To disable benchmarking, uncomment following line:
 //#define MEASURE_DURATION(NAME) NAME;
 
 /* fix "‘INT64_C’ was not declared in this scope" errors,
@@ -73,19 +71,19 @@ tBarcode mBarcodes;             // barcodes loaded from trajognize output
 tBlob mBlobParticles;           //!< The list of detected colored-particles.
 tBlob mMDParticles;             // list of motion-detected blobs
 tBlob mRatParticles;            // list of rat blobs
-IplImage *movingAverage;        // used by the motion detection filter
+cv::Mat movingAverage;        // used by the motion detection filter
 
 // image, video and text output parameters
-CvSize framesize;
-CvSize framesizeROI;
+cv::Size framesize;
+cv::Size framesizeROI;
 int framecount;
 double fps;
 int currentframe;
-IplImage *inputimage;           // BGR original image read from the video
-IplImage *smoothinputimage;     // BGR original image read from the video and smoothed
-IplImage *HSVimage;             // HSV image to work on with all image prcessing tools
-IplImage *maskimage;            // binary mask image containing only enlarged rat blobs
-CvCapture *inputvideo;
+cv::Mat inputimage;           // BGR original image read from the video
+cv::Mat smoothinputimage;     // BGR ROI image smoothed
+cv::Mat HSVimage;             // HSV ROI image to work on with all image prcessing tools
+cv::Mat maskimage;            // binary mask image containing only enlarged rat blobs
+cv::VideoCapture inputvideo;
 timed_t inputvideostarttime;    // like time_t but increased with fraction of a second
 
 // stream and string variables

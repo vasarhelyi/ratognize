@@ -89,17 +89,23 @@ int ParseDateTime(timed_t * dstTime, char *srcStr, bool bRelative) {
 // WARNING: there is no much error check on input data!
 // the function also sets the hipervideoframestart and hipervideoframeend parameters
 bool SetDSLP(int* dayssincelastpaint, timed_t inputvideostarttime, std::list<time_t>& mPaintDates) {
-	// checks whether we have absolute date at all and return silently with 0
+    // checks whether we have absolute date at all and return silently with 0
     if (inputvideostarttime == 0) {
         return true;
-	}
+    }
 
+    // check whether we have Paint Dates at all. If not, we return 0
+    if (!mPaintDates.size()) {
+        return true;
+    }
+    
     // calculate dayssincelastpaint
     // databases are (and must be) pre-sorted according to increasing day value
     std::list<time_t>::iterator it = mPaintDates.begin();
     while (it != mPaintDates.end() && (*it) < inputvideostarttime) {
         it++;
     }
+    printf("%ld %lf\n", (*it), inputvideostarttime);
     // error, date is earlier than first paint date
     if (it == mPaintDates.begin()) {
         LOG_ERROR("First date in paint date file is already after the date found in the inputvideo file name.");

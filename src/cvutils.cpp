@@ -1,44 +1,37 @@
 #include "cvutils.h"
 
-IplImage *cvCreateImageOnce(IplImage * dst, CvSize size, int depth,
+cv::Mat cvCreateImageOnce(cv::Mat &dst, cv::Size size, int depth,
         int channels, bool bZero) {
-    // create image if not null
-    if (!dst)
-        dst = cvCreateImage(size, depth, channels);
+    // create image if not empty
+    if (dst.empty())
+        dst = cv::Mat(size, depth, channels);
     // if size mismatch, recreate it
-    else if (dst->width != size.width || dst->height != size.height) {
-        cvReleaseImage(&dst);
-        dst = cvCreateImage(size, depth, channels);
+    else if (dst.size().width != size.width || dst.size().height != size.height) {
+        dst = cv::Mat(size, depth, channels);
     }
     // if already created, zero it
     if (bZero)
-        cvZero(dst);
+        dst.setTo(cv::Scalar::all(0));
 
     // return image
     return dst;
 }
 
-void cvFilterHSV(IplImage * dstBin, IplImage * srcHSV, CvScalar * colorHSV,
-        CvScalar * rangeHSV) {
-    // create black binary image as dst
-    cvSetZero(dstBin);
-
-    uchar *temp;
+void cvFilterHSV(cv::Mat &dstBin, cv::Mat &srcHSV, cv::Scalar colorHSV,
+        cv::Scalar rangeHSV) {
     int Hmin, Hmax, Smin, Smax, Vmin, Vmax, x;
 
     // Hue: 0-180, circular continuous
-    Hmax = (int) colorHSV->val[0];
-    Hmin = Hmax;
-    x = (int) rangeHSV->val[0];
+    Hmin = Hmax = (int) colorHSV.val[0];
+    x = (int) rangeHSV.val[0];
     if (x > 89)
         x = 89;
     Hmax = (Hmax + x) % 180;
     Hmin = (Hmin + 180 - x) % 180;
 
     // Saturation: 0-255
-    Smax = (int) colorHSV->val[1];
-    Smin = Smax;
-    x = (int) rangeHSV->val[1];
+    Smin = Smax = (int) colorHSV.val[1];
+    x = (int) rangeHSV.val[1];
     Smax += x;
     if (Smax > 255)
         Smax = 255;
@@ -47,58 +40,8 @@ void cvFilterHSV(IplImage * dstBin, IplImage * srcHSV, CvScalar * colorHSV,
         Smin = 0;
 
     // Value: 0-255
-    Vmax = (int) colorHSV->val[2];
-    Vmin = Vmax;
-    x = (int) rangeHSV->val[2];
-    Vmax += x;
-    if (Vmax > 255)
-        Vmax = 255;
-    Vmin -= x;
-    if (Vmin < 0)
-        Vmin = 0;
-
-    // set nonzero pixels only
-    for (int i = 0; i < srcHSV->width; i++) {
-        for (int j = 0; j < srcHSV->height; j++) {
-            temp = &((uchar *) (srcHSV->imageData +
-                            srcHSV->widthStep * j))[i * 3];
-            if (((Hmax >= Hmin && temp[0] >= Hmin && temp[0] <= Hmax)
-                            || (Hmax < Hmin && (temp[0] > Hmin
-                                            || temp[0] < Hmax)))
-                    && temp[1] >= Smin && temp[1] <= Smax && temp[2] >= Vmin
-                    && temp[2] <= Vmax) {
-                ((uchar *) (dstBin->imageData + dstBin->widthStep * j))[i] =
-                        255;
-            }
-        }
-    }
-}
-
-void cvFilterHSV2(IplImage * dstBin, IplImage * srcHSV, CvScalar * colorHSV,
-        CvScalar * rangeHSV) {
-    int Hmin, Hmax, Smin, Smax, Vmin, Vmax, x;
-
-    // Hue: 0-180, circular continuous
-    Hmin = Hmax = (int) colorHSV->val[0];
-    x = (int) rangeHSV->val[0];
-    if (x > 89)
-        x = 89;
-    Hmax = (Hmax + x) % 180;
-    Hmin = (Hmin + 180 - x) % 180;
-
-    // Saturation: 0-255
-    Smin = Smax = (int) colorHSV->val[1];
-    x = (int) rangeHSV->val[1];
-    Smax += x;
-    if (Smax > 255)
-        Smax = 255;
-    Smin -= x;
-    if (Smin < 0)
-        Smin = 0;
-
-    // Value: 0-255
-    Vmin = Vmax = (int) colorHSV->val[2];
-    x = (int) rangeHSV->val[2];
+    Vmin = Vmax = (int) colorHSV.val[2];
+    x = (int) rangeHSV.val[2];
     Vmax += x;
     if (Vmax > 255)
         Vmax = 255;
@@ -108,109 +51,89 @@ void cvFilterHSV2(IplImage * dstBin, IplImage * srcHSV, CvScalar * colorHSV,
 
     // threshold H plane
     if (Hmax >= Hmin) {
-        cvInRangeS(srcHSV, cvScalar(Hmin, Smin, Vmin),
-                cvScalar(Hmax, Smax, Vmax), dstBin);
+        cv::inRange(srcHSV, cv::Scalar(Hmin, Smin, Vmin),
+                cv::Scalar(Hmax, Smax, Vmax), dstBin);
     } else {
-        static IplImage *tmp = NULL;
-        tmp = cvCreateImageOnce(tmp, cvGetSize(dstBin), 8, 1, false);
-        cvInRangeS(srcHSV, cvScalar(Hmin, Smin, Vmin),
-                cvScalar(255, Smax, Vmax), dstBin);
-        cvInRangeS(srcHSV, cvScalar(0, Smin, Vmin),
-                cvScalar(Hmax, Smax, Vmax), tmp);
-        cvOr(tmp, dstBin, dstBin);
-        //cvReleaseImage(&tmp);
+        static cv::Mat tmp;
+        tmp = cvCreateImageOnce(tmp, dstBin.size(), 8, 1, false);
+        cv::inRange(srcHSV, cv::Scalar(Hmin, Smin, Vmin),
+                cv::Scalar(255, Smax, Vmax), dstBin);
+        cv::inRange(srcHSV, cv::Scalar(0, Smin, Vmin),
+                cv::Scalar(Hmax, Smax, Vmax), tmp);
+        cv::bitwise_or(tmp, dstBin, dstBin);
     }
 }
 
-void cvSkeleton(CvArr * src, CvArr * dst) {
-    static IplImage *temp = NULL;
-    static IplImage *eroded = NULL;
-    static IplImage *skel = NULL;
-    IplConvKernel *element;
+void cvSkeleton(cv::Mat &src, cv::Mat &dst) {
+    static cv::Mat temp;
+    static cv::Mat eroded;
+    static cv::Mat skel;
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
 
-    temp = cvCreateImageOnce(temp, cvGetSize(src), IPL_DEPTH_8U, 1, false);
-    eroded = cvCreateImageOnce(eroded, cvGetSize(src), IPL_DEPTH_8U, 1, false);
-    skel = cvCreateImageOnce(skel, cvGetSize(src), IPL_DEPTH_8U, 1);
-    element = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_CROSS);
+    temp = cvCreateImageOnce(temp, src.size(), IPL_DEPTH_8U, 1, false);
+    eroded = cvCreateImageOnce(eroded, src.size(), IPL_DEPTH_8U, 1, false);
+    skel = cvCreateImageOnce(skel, src.size(), IPL_DEPTH_8U, 1);
 
-    cvCopy(src, dst);
+    src.copyTo(dst);
 
     do {
-        cvErode(dst, eroded, element);
-        cvDilate(eroded, temp, element);
-        cvSub(dst, temp, temp);
-        cvOr(skel, temp, skel);
-        cvCopy(eroded, dst);
-    } while (cvNorm(dst));
+        cv::erode(dst, eroded, element);
+        cv::dilate(eroded, temp, element);
+        cv::subtract(dst, temp, temp);
+        cv::bitwise_or(skel, temp, skel);
+        eroded.copyTo(dst);
+    } while (cv::norm(dst));
 
-    cvCopy(skel, dst);
-
-    //cvReleaseImage(&temp);
-    //cvReleaseImage(&eroded);
-    //cvReleaseImage(&skel);
+    skel.copyTo(dst);
 }
 
-void FilterMotion(IplImage * srcColor, IplImage * movingAverage,
-        IplImage * dstGrey, double mdAlpha, int mdThreshold) {
+void FilterMotion(cv::Mat &srcColor, cv::Mat &movingAverage,
+        cv::Mat &dstGrey, double mdAlpha, int mdThreshold) {
     //Images to use in the program.
-    static IplImage *difference = NULL;
-    static IplImage *dred = NULL;
-    static IplImage *dgreen = NULL;
-    static IplImage *dblue = NULL;
+    cv::Mat difference;
+    cv::Mat *channels = NULL;
 
     // create diff image
-    difference = cvCreateImageOnce(difference, cvGetSize(srcColor), 
+    difference = cvCreateImageOnce(difference, srcColor.size(),
 			IPL_DEPTH_8U, 3, false);
 
-    //Convert the scale of the moving average and store in difference.
-    cvConvert(movingAverage, difference);
+    //Convert high-res moving average and store in difference.
+    movingAverage.convertTo(difference, CV_8UC3);
 
     //Substract the current frame from the moving average.
-    cvAbsDiff(srcColor, difference, difference);
+    cv::absdiff(srcColor, difference, difference);
 
     // update running average with current frame
-    cvRunningAvg(srcColor, movingAverage, mdAlpha, NULL);
+    cv::accumulateWeighted(srcColor, movingAverage, mdAlpha);
 
-    // add channels in difference image
-    dred = cvCreateImageOnce(dred, cvGetSize(difference), IPL_DEPTH_8U, 1,
-            false);
-    dgreen = cvCreateImageOnce(dgreen, cvGetSize(difference), IPL_DEPTH_8U, 1,
-            false);
-    dblue = cvCreateImageOnce(dblue, cvGetSize(difference), IPL_DEPTH_8U, 1,
-            false);
-    cvSplit(difference, dblue, dgreen, dred, NULL);
+    // split difference image into channels
+    cv::split(difference, channels);
 
 	// add individual channel differences
-	cvAdd(dblue, dgreen, dstGrey);
-	cvAdd(dred, dstGrey, dstGrey);
+	cv::add(channels[0], channels[1], dstGrey); // b + g
+	cv::add(channels[2], dstGrey, dstGrey); // + r
 	// or choose max deviation
 	// (this should be used for PROJECT_MAZE)
-	// cvMax(dblue, dgreen, dstGrey);
-    // cvMax(dred, dstGrey, dstGrey);
+	// cv::Max(channels[0], channels[1], dstGrey); // b + g
+    // cv::Max(channels[2], dstGrey, dstGrey); // + r
 
     // debug output: average difference on new image
-    //CvScalar avgdiff = cvAvg(dstGrey);
+    //cv::Scalar avgdiff = cv::Avg(dstGrey);
     //ofslog << currentframe << "\tAVGDIFF\t" << avgdiff.val[0] << endl;
 
     //Convert the image to grayscale.
-    //cvCvtColor(difference,dstGrey,CV_RGB2GRAY);
+    //cv::cvtColor(difference,dstGrey,CV_RGB2GRAY);
 
     //Convert the image to black and white.
-    cvThreshold(dstGrey, dstGrey, mdThreshold, 255, CV_THRESH_BINARY);
+    cv::threshold(dstGrey, dstGrey, mdThreshold, 255, CV_THRESH_BINARY);
 
     //Dilate and erode to get moving blobs
     //TODO: these parameters can be optimized, too/
-    cvDilate(dstGrey, dstGrey, 0, 6);
-    cvErode(dstGrey, dstGrey, 0, 4);
-
-    // Destroy the image, movies, and window.
-    //cvReleaseImage(&difference);
-    //cvReleaseImage(&dred);
-    //cvReleaseImage(&dgreen);
-    //cvReleaseImage(&dblue);
+    cv::dilate(dstGrey, dstGrey, cv::Mat(), cv::Point(-1,-1), 6);
+    cv::erode(dstGrey, dstGrey, cv::Mat(), cv::Point(-1,-1), 4);
 }
 
-void FitLine(CvPoint * points, int count, float *line) {
+void FitLine(cv::Point *points, int count, float *line) {
     double x = 0, y = 0, xy = 0, xx = 0;
     for (int i = 0; i < count; i++) {
         x += points[i].x;

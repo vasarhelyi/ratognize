@@ -19,13 +19,13 @@ void WriteLogFileHeader(cCS* cs, std::string args, std::ofstream& ofslog) {
 	timeinfo = localtime(&rawtime);
 
 	// store ini file
-	char cc[512];
+	char cc[3 * MAXPATH];
 	sprintf(cc,
 		cs->bProcessText ? "cp %s %s%s" BARCODETAG ".ini" : "cp %s %s%s.ini",
 		cs->inifile, cs->outputdirectory, cs->outputfilecommon);
-	system(cc);                 // TODO: does it work on linux??? \,/ characters, etc.
+	system(cc); // TODO: does it work on linux??? \,/ characters, etc.
 
-								// write dat header
+	// write dat header
 	ofslog << "# ratognize log file created on: " << asctime(timeinfo) << std::endl
 		<< "# file was called like this: " << args << std::endl
 		<< "# used ini file with settings is stored in: " << cs->
@@ -118,8 +118,8 @@ void WriteBlobFile(cCS* cs, std::ofstream& ofsdat, tBlob& mBlobParticles,
 
 ////////////////////////////////////////////////////////////////////////////////
 // this function should be called once at the beginning
-void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase, 
-		cColor* mColor, tColor* mBGColor, lighttype_t mLight, 
+void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase,
+		cColor* mColor, tColor* mBGColor, lighttype_t mLight,
 		timed_t inputvideostarttime) {
     const char *hsv = "HSV";
     int i, j, k, kk, minday, maxday;
@@ -128,7 +128,7 @@ void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase,
     std::list < cColorSet >::iterator it, it2;
     int oldDSLP = cs->dayssincelastpaint;
     // open and truncate output file
-    char cc[MAXPATH];
+    char cc[3 * MAXPATH];
     sprintf(cc, "%s%s.colors", cs->outputdirectory, cs->outputfilecommon);
     fadefile.open(cc, std::ios::out | std::ios::trunc);
 
@@ -144,7 +144,7 @@ void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase,
             fadefile << "day\tfrom_date";
             for (i = 0; i < MAXMBASE; i++)
                 for (j = 0; j < 3; j++)
-                    fadefile << "\t" << mColor[i].name << "_" << hsv[j] << 
+                    fadefile << "\t" << mColor[i].name << "_" << hsv[j] <<
 							"\t" << mColor[i].name << "_" << hsv[j] << "R";
             fadefile << std::endl;
             it = mColorDataBase[light].begin();
@@ -160,8 +160,8 @@ void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase,
             for (cs->dayssincelastpaint = minday;
                     cs->dayssincelastpaint <= maxday; cs->dayssincelastpaint++) {
                 // TODO: error handling
-                SetHSVDetectionParams(light, (color_interpolation_t)kk, 
-						cs->dayssincelastpaint, inputvideostarttime, 
+                SetHSVDetectionParams(light, (color_interpolation_t)kk,
+						cs->dayssincelastpaint, inputvideostarttime,
 						mColorDataBase, mColor, mBGColor);
                 // write day
                 fadefile << cs->dayssincelastpaint;
@@ -196,8 +196,8 @@ void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase,
     // reset variables and close file
     cs->dayssincelastpaint = oldDSLP;
     // TODO: error handling
-    SetHSVDetectionParams(mLight, cs->colorselectionmethod, 
-			cs->dayssincelastpaint, inputvideostarttime, 
+    SetHSVDetectionParams(mLight, cs->colorselectionmethod,
+			cs->dayssincelastpaint, inputvideostarttime,
 			mColorDataBase, mColor, mBGColor);
     fadefile.close();
 }

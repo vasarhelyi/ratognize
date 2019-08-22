@@ -8,6 +8,6 @@
 #define MAXMCHIPS 4
 
 // Maximum length of a file path
-#define MAXPATH 256
+#define MAXPATH 512
 
 #endif

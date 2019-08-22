@@ -20,8 +20,6 @@
 
 #define RATOGNIZE__VERSION "$Id: ratognize.cpp 10039 2019-01-24 07:56:04Z vasarhelyi $"
 
-using namespace std;
-
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[]) {
     int i;
@@ -38,12 +36,12 @@ int main(int argc, char *argv[]) {
     double d = 0;
 
     // log the first frame
-    ofslog << currentframe << "\tFIRSTFRAME" << endl;
+    ofslog << currentframe << "\tFIRSTFRAME" << std::endl;
 
     // loop through all frames
-    while (inputimage && (cs.lastframe < 1 || (cs.lastframe >= 1
+    while (!inputimage.empty() && (cs.lastframe < 1 || (cs.lastframe >= 1
                             && currentframe <= cs.lastframe))) {
-        // do blob detection and all stuff              
+        // do blob detection and all stuff
         if (!OnStep()) {
             OnExit();
             return -16;
@@ -52,13 +50,13 @@ int main(int argc, char *argv[]) {
         clock_now = clock();
         if ((double) (clock_now - clock_start) / CLOCKS_PER_SEC - d >= 1) {
             d = (double) (clock_now - clock_start) / CLOCKS_PER_SEC;
-            cout << "frame: " << currentframe
+            std::cout << "frame: " << currentframe
                     << ", FPS: " << (double) (currentframe - cs.firstframe) / d
                     << ", elapsed: " << (int) d
                     << "s, remains: " << (int) ((double) d * ((cs.lastframe <
                                     1 ? framecount : cs.lastframe) -
                             currentframe) / (currentframe - cs.firstframe))
-                    << "s" << endl;
+                    << "s" << std::endl;
         }
         // read next frame from video
         if (!ReadNextFrame()) {
@@ -67,10 +65,10 @@ int main(int argc, char *argv[]) {
     }
 
     // log the last frame
-    ofslog << currentframe - 1 << "\tLASTFRAME" << endl;
+    ofslog << currentframe - 1 << "\tLASTFRAME" << std::endl;
 
     if (cs.bCout)
-        cout << endl;
+        std::cout << std::endl;
 
     // release memory
     OnExit();
@@ -84,11 +82,11 @@ int OnInit(int argc, char *argv[]) {
     bool tempDSLP = false;
 
 #ifdef ON_LINUX
-    cout << "libavcodec version: " << LIBAVCODEC_IDENT << endl;
+    std::cout << "libavcodec version: " << LIBAVCODEC_IDENT << std::endl;
 #endif
-    cout << "openCV version: " << CV_VERSION << endl;
-    cout << "ratognize.h version: " << RATOGNIZE_H__VERSION << endl;
-    cout << "ratognize.cpp version: " << RATOGNIZE__VERSION << endl;
+    std::cout << "openCV version: " << CV_VERSION << std::endl;
+    std::cout << "ratognize.h version: " << RATOGNIZE_H__VERSION << std::endl;
+    std::cout << "ratognize.cpp version: " << RATOGNIZE__VERSION << std::endl;
 
     // check arguments (if these are set, they overwrite .ini settings)
     // no error check, only good ones are
@@ -109,39 +107,39 @@ int OnInit(int argc, char *argv[]) {
                 cs.dayssincelastpaint = atoi(argv[++i]);
                 tempDSLP = true;
             } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-                cout << "Usage: ratognize --param1 [filename] --param2 [filename] ..., " << endl <<
-                        "       where paramN can be 'inifile', 'inputvideofile', 'dayssincelastpaint'" << endl << 
-                        "       All settings override default and .ini file values." << endl;
+                std::cout << "Usage: ratognize --param1 [filename] --param2 [filename] ..., " << std::endl <<
+                        "       where paramN can be 'inifile', 'inputvideofile', 'dayssincelastpaint'" << std::endl <<
+                        "       All settings override default and .ini file values." << std::endl;
                 return 1;
             } else {
-                cout << "Unknown option in parameter " << i <<
-                        ". Try '--help' if it is not a typo." << endl;
+                std::cout << "Unknown option in parameter " << i <<
+                        ". Try '--help' if it is not a typo." << std::endl;
                 return 2;
             }
         } else                  // odd parameter is not option
         {
-            cout << "parameter " << i << " is bad. Try '--help'" << endl;
+            std::cout << "parameter " << i << " is bad. Try '--help'" << std::endl;
             return 3;
         }
     }
 
     // read control variables
-    cout << "Reading ini file: " << cs.inifile << endl;
+    std::cout << "Reading ini file: " << cs.inifile << std::endl;
     if (!ReadIniFile(tempDSLP, &cs, mColorDataBase, mColor)) {
-        cin.get();
+        std::cin.get();
         return 4;
     }
-    cout << "  OK - mDiaMin: " << cs.mDiaMin << " mDiaMax: " << cs.mDiaMax <<  
-            " mElongationMax: " << cs.mElongationMax << endl;
+    std::cout << "  OK - mDiaMin: " << cs.mDiaMin << " mDiaMax: " << cs.mDiaMax <<
+            " mElongationMax: " << cs.mElongationMax << std::endl;
 
     // read paintdate file
     if (cs.paintdatefile[0] && !tempDSLP) {
-        cout << "Reading paint date file: " << cs.paintdatefile << endl;
+        std::cout << "Reading paint date file: " << cs.paintdatefile << std::endl;
         if (!ReadPaintDateFile(mPaintDates, &cs)) {
             return 5;
         }
-        cout << "  OK - number of paint dates: " << 
-                (int) mPaintDates.size() << endl;
+        std::cout << "  OK - number of paint dates: " <<
+                (int) mPaintDates.size() << std::endl;
     }
 
     std::ostringstream outfile;
@@ -162,53 +160,53 @@ int OnInit(int argc, char *argv[]) {
     }
     // and create it if needed
     outfile.str("");
-    outfile << "mkdir " << cs.outputdirectory;
+    outfile << "mkdir -p " << cs.outputdirectory;
     system(outfile.str().c_str());      // TODO: does it work on linux??? \,/ characters, etc.
 
     // define input/output file names
-    cout << "Using input video file: " << cs.inputvideofile << endl;
+    std::cout << "Using input video file: " << cs.inputvideofile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << (cs.
             bProcessText ? BARCODETAG ".avi" : ".avi");
     strcpy(cs.outputvideofile, outfile.str().c_str());  // video
-    cout << "Using output video file: " << cs.outputvideofile << endl;
+    std::cout << "Using output video file: " << cs.outputvideofile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << ".blobs";
     strcpy(cs.inputdatfile, outfile.str().c_str());     // {} style data
-    cout << "Using input blob file: " << cs.inputdatfile << endl;
+    std::cout << "Using input blob file: " << cs.inputdatfile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << (cs.
             bProcessText ? BARCODETAG ".blobs" : ".blobs");
     strcpy(cs.outputdatfile, outfile.str().c_str());    // {} style data
-    cout << "Using output blob file: " << cs.outputdatfile << endl;
+    std::cout << "Using output blob file: " << cs.outputdatfile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.
             outputfilecommon << (".blobs" BARCODETAG);
     strcpy(cs.inputbarcodefile, outfile.str().c_str()); // trajognize barcode output file. Watch for common naming convention!
-    cout << "Using input barcode file: " << cs.inputbarcodefile << endl;
+    std::cout << "Using input barcode file: " << cs.inputbarcodefile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << ".log";
     strcpy(cs.inputlogfile, outfile.str().c_str());     // used to get LED lines
-    cout << "Using input log file: " << cs.inputlogfile << endl;
+    std::cout << "Using input log file: " << cs.inputlogfile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << (cs.
             bProcessText ? BARCODETAG ".log" : ".log");
     strcpy(cs.outputlogfile, outfile.str().c_str());    // log
-    cout << "Using output log file: " << cs.outputlogfile << endl;
+    std::cout << "Using output log file: " << cs.outputlogfile << std::endl;
 
     // set absolute starting time of video
-    cout << "Get starting date from video file name..." << endl;
+    std::cout << "Get starting date from video file name..." << std::endl;
     i = ParseDateTime(&inputvideostarttime, cs.outputfilecommon);
     // if there are at least two tokens read, we treat it as error,
     // otherwise we assume that date is not coded in the filename
     if (i < -1) {
-        cout << "  ERROR calling ParseDateTime: " << i << endl;
+        std::cout << "  ERROR calling ParseDateTime: " << i << std::endl;
         return 6;
     } else if (i != 6) {
         inputvideostarttime = 0;
@@ -216,16 +214,16 @@ int OnInit(int argc, char *argv[]) {
     // set dayssincelastpaint
     if (!tempDSLP) {
          if (!SetDSLP(&cs.dayssincelastpaint, inputvideostarttime, mPaintDates)) {
-            cout << "  ERROR calling SetDSLP. " << endl;
+            std::cout << "  ERROR calling SetDSLP. " << std::endl;
             return 7;
         }
     }
-    cout << "  Input video start time: " << inputvideostarttime << endl;
-    cout << "  Days since last paint: " << cs.dayssincelastpaint << endl;
+    std::cout << "  Input video start time: " << inputvideostarttime << std::endl;
+    std::cout << "  Days since last paint: " << cs.dayssincelastpaint << std::endl;
 
     // Output Fading Colors To File
     if (cs.bShowDebugVideo && cs.colorselectionmethod != 2)
-        OutputFadingColorsToFile(&cs, mColorDataBase, mColor, &mBGColor, 
+        OutputFadingColorsToFile(&cs, mColorDataBase, mColor, &mBGColor,
                 mLight, inputvideostarttime);
 
     // TODO temp: set nightlight params as default if no LED check is used
@@ -238,7 +236,7 @@ int OnInit(int argc, char *argv[]) {
         }
     }
     // capture video input
-    cout << "Opening video file..." << endl;
+    std::cout << "Opening video file..." << std::endl;
     if (!initializeVideo(cs.inputvideofile)) {
         return 9;
     }
@@ -246,25 +244,25 @@ int OnInit(int argc, char *argv[]) {
     // TODO: how should ROI appear in the output coordinates??? What should be the origin?
     if (cs.imageROI.height && cs.imageROI.width) {
         if ((cs.imageROI.height % 8) || (cs.imageROI.width % 8)) {
-            cout << "  ERROR: imageROI width and height value should be multiples of 8" << endl;
+            std::cout << "  ERROR: imageROI width and height value should be multiples of 8" << std::endl;
             return 10;
         }
         if (framesize.width < cs.imageROI.x + cs.imageROI.width
                 || framesize.height < cs.imageROI.y + cs.imageROI.height) {
-            cout << "  ERROR: imageROI points out of the image frame" << endl;
+            std::cout << "  ERROR: imageROI points out of the image frame" << std::endl;
             return 11;
         }
         framesizeROI.width = cs.imageROI.width;
         framesizeROI.height = cs.imageROI.height;
-        cout << "  image ROI defined, new output size: " << framesizeROI.
-                width << "x" << framesizeROI.height << endl;
+        std::cout << "  image ROI defined, new output size: " << framesizeROI.
+                width << "x" << framesizeROI.height << std::endl;
     } else
         framesizeROI = framesize;
 
     // initialize global images
-    smoothinputimage = cvCreateImage(framesizeROI, IPL_DEPTH_8U, 3);    // smooth input image on ROI
-    maskimage = cvCreateImage(framesizeROI, IPL_DEPTH_8U, 1);   // binary mask containing rat blobs
-    HSVimage = cvCreateImage(framesizeROI, IPL_DEPTH_8U, 3);    // HSV image on ROI - almost all image processing is done on this image
+    smoothinputimage = cv::Mat(framesizeROI, CV_8UC3);    // smooth input image on ROI
+    maskimage = cv::Mat(framesizeROI, CV_8UC1);   // binary mask containing rat blobs
+    HSVimage = cv::Mat(framesizeROI, CV_8UC3);    // HSV image on ROI - almost all image processing is done on this image
 
     // get first good frame from video
     if (!readVideoUntilFirstGoodFrame()) {
@@ -272,14 +270,13 @@ int OnInit(int argc, char *argv[]) {
     }
     // create initial moving average image
     if (cs.bMotionDetection) {
-        movingAverage = cvCreateImage(framesizeROI, IPL_DEPTH_32F, 3);  // high resolution depth
-        cvConvert(smoothinputimage, movingAverage);
+        smoothinputimage.convertTo(movingAverage, CV_32FC3);
     }
     // debug options
     if (cs.bShowVideo) {
-        cvNamedWindow("OutputVideo", CV_WINDOW_NORMAL); // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+        cv::namedWindow("OutputVideo", CV_WINDOW_NORMAL); // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
         if (cs.displaywidth)
-            cvResizeWindow("OutputVideo", cs.displaywidth,
+            cv::resizeWindow("OutputVideo", cs.displaywidth,
                     cs.displaywidth * framesizeROI.height / framesizeROI.width);
     }
 
@@ -289,29 +286,29 @@ int OnInit(int argc, char *argv[]) {
             if (!mColor[i].mUse)
                 continue;
             sprintf(cc, "c%d-%s", i, mColor[i].name);
-            cvNamedWindow(cc, CV_WINDOW_NORMAL);        // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+            cv::namedWindow(cc, CV_WINDOW_NORMAL);        // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
             if (cs.displaywidth)
-                cvResizeWindow(cc, cs.displaywidth,
+                cv::resizeWindow(cc, cs.displaywidth,
                         cs.displaywidth * framesizeROI.height /
                         framesizeROI.width);
         }
         // MD
         if (cs.bMotionDetection) {
-            cvNamedWindow("MD", CV_WINDOW_NORMAL);
+            cv::namedWindow("MD", CV_WINDOW_NORMAL);
             if (cs.displaywidth)
-                cvResizeWindow("MD", cs.displaywidth,
+                cv::resizeWindow("MD", cs.displaywidth,
                         cs.displaywidth * framesizeROI.height /
                         framesizeROI.width);
         }
         // LED
-        cvNamedWindow("LED", CV_WINDOW_NORMAL); // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+        cv::namedWindow("LED", CV_WINDOW_NORMAL); // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
         if (cs.displaywidth)
-            cvResizeWindow("LED", cs.displaywidth,
+            cv::resizeWindow("LED", cs.displaywidth,
                     cs.displaywidth * framesizeROI.height / framesizeROI.width);
         // rats
-        cvNamedWindow("rats", CV_WINDOW_NORMAL);        // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+        cv::namedWindow("rats", CV_WINDOW_NORMAL);        // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
         if (cs.displaywidth)
-            cvResizeWindow("rats", cs.displaywidth,
+            cv::resizeWindow("rats", cs.displaywidth,
                     cs.displaywidth * framesizeROI.height / framesizeROI.width);
     }
     // init fonts, videowriter, hipervideoparams, etc.
@@ -350,24 +347,18 @@ void OnExit(bool bReleaseVars) {
         ofslog.close();
         ofsdat.flush();
         ofsdat.close();
-        cout.flush();
-        cerr.flush();
+        std::cout.flush();
+        std::cerr.flush();
         // release visual outputs
         DestroyVisualOutput();
         // release memory
-        if (cs.bMotionDetection) {
-            cvReleaseImage(&movingAverage);
-        }
         if (cs.bShowVideo || cs.bShowDebugVideo) {
-            cvDestroyAllWindows();
+            cv::destroyAllWindows();
         }
-        cvReleaseImage(&smoothinputimage);
-        cvReleaseImage(&maskimage);
-        cvReleaseImage(&HSVimage);
     }
 
     if (cs.bCin)
-        cin.get();
+        std::cin.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -384,15 +375,16 @@ bool OnStep() {
     if (cs.bProcessImage) {
 
         // create images (when it is not initialized or when size changed)
-        static IplImage *filterimage = NULL;
-        filterimage = cvCreateImageOnce(filterimage, cvGetSize(HSVimage), 8, 1, false); // no need to zero
+        static cv::Mat filterimage;
+        filterimage = cvCreateImageOnce(filterimage, HSVimage.size(), 8, 1, false); // no need to zero
 
         // detect day/night light from RED LED
         // LED detection is always on on first 50 frames, frame skipping starts only after that
-        if (cs.bLED && (currentframe < 50 || 
+        if (cs.bLED && (currentframe < 50 ||
                 (currentframe % cs.LEDdetectionskipfactor) == 0)) {
+            // LED detection is on the ORIGINAL frame, not using ROI
             if (!ReadDayNightLED(HSVimage, inputimage, ofslog,
-                    &cs, mColorDataBase, mColor, &mBGColor, &mLight, 
+                    &cs, mColorDataBase, mColor, &mBGColor, &mLight,
                     inputvideostarttime, currentframe)) {
                 return false;
             }
@@ -403,25 +395,25 @@ bool OnStep() {
                 mRatParticles, currentframe, ofslog));
 
         //for (int iii=0;iii<5;iii++) {
-        //      cout << mColor[iii].name << " ";
-        //      for (int jjj=0;jjj<3;jjj++) 
-        //              cout << mColor[iii].mColor.mColorHSV.val[jjj] << " ";
-        //      for (int jjj=0;jjj<3;jjj++) 
-        //              cout << mColor[iii].mColor.mRangeHSV.val[jjj] << " ";
-        //      cout << endl;
+        //      std::cout << mColor[iii].name << " ";
+        //      for (int jjj=0;jjj<3;jjj++)
+        //              std::cout << mColor[iii].mColor.mColorHSV.val[jjj] << " ";
+        //      for (int jjj=0;jjj<3;jjj++)
+        //              std::cout << mColor[iii].mColor.mRangeHSV.val[jjj] << " ";
+        //      std::cout << std::endl;
         //}
 
         // mask HSVimage with maskimage for main blob detection
         // Note: no mask can be used on sub-calls, so no speed-up is possible
-        static IplImage *maskedHSVimage = NULL;
-        maskedHSVimage = cvCreateImageOnce(maskedHSVimage, cvGetSize(HSVimage),
+        static cv::Mat maskedHSVimage;
+        maskedHSVimage = cvCreateImageOnce(maskedHSVimage, HSVimage.size(),
                 IPL_DEPTH_8U, 3);
-        cvCopy(HSVimage, maskedHSVimage, maskimage);
+        HSVimage.copyTo(maskedHSVimage, maskimage);
         // Detect the blobs of all the used colors
         for (i = 0; i < cs.mBase; i++)
             if (mColor[i].mUse) {
                 mColor[i].mNumBlobsFound = 0;
-                MEASURE_DURATION(FindHSVBlobs(maskedHSVimage, i, filterimage, 
+                MEASURE_DURATION(FindHSVBlobs(maskedHSVimage, i, filterimage,
                         mColor, &cs, mBlobParticles, currentframe, ofslog));
             }
         //cvReleaseImage(&maskedHSVimage);
@@ -431,9 +423,9 @@ bool OnStep() {
             MEASURE_DURATION(FilterMotion(smoothinputimage, movingAverage,
                     filterimage, cs.mdAlpha, cs.mdThreshold));
             if (cs.bShowDebugVideo) {
-                cvShowImage("MD", filterimage);
+                cv::imshow("MD", filterimage);
             }
-            MEASURE_DURATION(FindMDorRatBlobs(filterimage, &cs, mMDParticles, 
+            MEASURE_DURATION(FindMDorRatBlobs(filterimage, &cs, mMDParticles,
                     currentframe, ofslog));
         }
         // Release temporary images
@@ -456,8 +448,8 @@ bool OnStep() {
         if (i < 0) {
             return false;
         } else if (i > 0) {
-            if (!SetHSVDetectionParams(mLight, cs.colorselectionmethod, 
-                    cs.dayssincelastpaint, inputvideostarttime, 
+            if (!SetHSVDetectionParams(mLight, cs.colorselectionmethod,
+                    cs.dayssincelastpaint, inputvideostarttime,
                     mColorDataBase, mColor, &mBGColor)) {
                 return false;
             }
@@ -481,7 +473,7 @@ void GenerateOutput() {
 
     // write result to output if needed
     if (cs.bCout) {
-        cout << "frame: " << currentframe
+        std::cout << "frame: " << currentframe
                 << ", c0-" << mColor[0].name << ": " << mColor[0].mNumBlobsFound
                 << ", c1-" << mColor[1].name << ": " << mColor[1].mNumBlobsFound
                 << ", c2-" << mColor[2].name << ": " << mColor[2].mNumBlobsFound
@@ -489,32 +481,33 @@ void GenerateOutput() {
                 << ", c4-" << mColor[4].name << ": " << mColor[4].mNumBlobsFound
                 << ", MD: " << (int) mMDParticles.size()
                 << ", RAT: " << (int) mRatParticles.size()
-                << endl;
+                << std::endl;
     }
 
     //////////////////////////////////////////////////////
     // debug results
     //char* cc = {"RYGBP"};
     //for (int i = 0; i < (int)mBlobParticles.size(); i++) {
-    //    cout << cc[mBlobParticles[i].index] << mBlobParticles[i].index
+    //    std::cout << cc[mBlobParticles[i].index] << mBlobParticles[i].index
     //        << " X" << mBlobParticles[i].mCenter.x
     //        << " Y" << mBlobParticles[i].mCenter.y
     //        << " D" << mBlobParticles[i].mRadius * 2
     //        << " E" << mBlobParticles[i].mAxisA / mBlobParticles[i].mAxisB
-    //        << endl;
+    //        << std::endl;
     //}
     ////////////////////////////////////////////////////
 
     // put blobs on image and show/save it if needed
     if (cs.bShowVideo || cs.bWriteVideo) {
         // generate output video frame
+        // pass original image to write to, not ROI one
         WriteVisualOutput(inputimage, smoothinputimage, &cs,
                 mBlobParticles, mMDParticles, mRatParticles,
                 mBarcodes, mColor, mLight,
-                inputvideostarttime, currentframe, framesize, fps);
+                inputvideostarttime, currentframe, framesize, framesizeROI, fps);
         // show image with blobs
         if (cs.bShowVideo) {
-            cvShowImage("OutputVideo", inputimage);     // show frame
+            cv::imshow("OutputVideo", inputimage);     // show frame
             if (cs.bCin) {
                 cvWaitKey(0);   // wait for Return
             } else {
@@ -528,57 +521,55 @@ void GenerateOutput() {
             else
                 cvWaitKey(1);   // wait minimal but go on
         } else if (cs.bCin)
-            cin.get();
+            std::cin.get();
     } else if (cs.bCin) {
-        cin.get();              // wait for return if needed and no image was shown
+        std::cin.get();              // wait for return if needed and no image was shown
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 bool initializeVideo(char *filename) {
-    inputvideo = cvCaptureFromAVI(filename);    // TODO: OpenCv2.3.1 does not work on X64 Debug/Release
+    inputvideo.open(filename);
 
-    if (!inputvideo) {
+    if (!inputvideo.isOpened()) {
         LOG_ERROR("Could not open input video file: %s", filename);
+	return false;
     }
     // set parameters
-    framesize.height = (int) cvGetCaptureProperty(inputvideo,
-            CV_CAP_PROP_FRAME_HEIGHT);
+    framesize.height = (int) inputvideo.get(CV_CAP_PROP_FRAME_HEIGHT);
     if (framesize.height <= 0) {
         LOG_ERROR("Could not get proper framesize.height");
         return false;
     }
-    framesize.width = (int) cvGetCaptureProperty(inputvideo,
-            CV_CAP_PROP_FRAME_WIDTH);
+    framesize.width = (int) inputvideo.get(CV_CAP_PROP_FRAME_WIDTH);
     if (framesize.width <= 0) {
         LOG_ERROR("Could not get proper framesize.width");
         return false;
     }
-    framecount = (int) cvGetCaptureProperty(inputvideo,
-            CV_CAP_PROP_FRAME_COUNT);
+    framecount = (int) inputvideo.get(CV_CAP_PROP_FRAME_COUNT);
     if (framecount <= 0) {
         //LOG_ERROR("Could not get proper framecount (received %d)", framecount);
         //return false;
 
         // TODO: temporary solution, solve this under Linux: bad framecount returned (even negative or zero ???)
-        cout << "  Warning: could not get proper framecount (received " <<
+        std::cout << "  Warning: could not get proper framecount (received " <<
                 framecount << "). Framecount is set to 1000000 temporarily.";
         framecount = 1000000;
         // end of temporary solution
     }
-    fps = cvGetCaptureProperty(inputvideo, CV_CAP_PROP_FPS);
+    fps = inputvideo.get(CV_CAP_PROP_FPS);
     // check if input video is interlaced or not
     if (cs.bInputVideoIsInterlaced) {
         fps /= 2;
         framecount /= 2;
-        cout << "  Warning: input video is manually set as interlaced! Frame number and fps refers to the deinterlaced video." << endl;
+        std::cout << "  Warning: input video is manually set as interlaced! Frame number and fps refers to the deinterlaced video." << std::endl;
     } else
-        cout << "  Warning: Input video is manually set as non-interlaced." <<
-                endl;
+        std::cout << "  Warning: Input video is manually set as non-interlaced." <<
+                std::endl;
     // output debug info about read variables
-    cout << "  OK - " << "framecount: " << framecount << ", fps: " << fps <<
+    std::cout << "  OK - " << "framecount: " << framecount << ", fps: " << fps <<
             ", framesize: " << framesize.width << "x" << framesize.
-            height << endl;
+            height << std::endl;
     return true;
 }
 
@@ -586,21 +577,21 @@ bool initializeVideo(char *filename) {
 // read until first OK frame
 bool readVideoUntilFirstGoodFrame() {
     // TODO:  OpenCv2.3.1 cvSetCaptureProperty does not work well on patek .ts videos!!! Should not be called at all if started from beginning!
-    cout << "Reading video until first good frame is found..." << endl;
+    std::cout << "Reading video until first good frame is found..." << std::endl;
     if (cs.firstframe)
-        cout << "  First frame is defined (" << cs.
+        std::cout << "  First frame is defined (" << cs.
                 firstframe <<
                 "). Since video positioning is not exact, we need to read all frames before that."
-                << endl;
+                << std::endl;
 //      if (cs.firstframe < 100)
 //      {
     currentframe = 0;
-    while ((!inputimage || currentframe <= cs.firstframe)
+    while ((inputimage.empty() || currentframe <= cs.firstframe)
             && currentframe < cs.firstframe + 128) {
         ReadNextFrame();
         if ((currentframe % 100) == 0)
-            cout << currentframe << " frames read (" << cs.firstframe -
-                    currentframe << " left)" << endl;
+            std::cout << currentframe << " frames read (" << cs.firstframe -
+                    currentframe << " left)" << std::endl;
     }
 //      }
     // TODO: this might not work, do not give large starting frame No. on patek .ts videos!!!
@@ -612,12 +603,12 @@ bool readVideoUntilFirstGoodFrame() {
             ReadNextFrame();
     }
 */
-    if (!inputimage) {
+    if (inputimage.empty()) {
         LOG_ERROR("Could not retreive good frame from video even after 128 trials.");
         return false;
     }
-    cout << "  First good frame number (starting from zero): " <<
-            (--currentframe) << endl;
+    std::cout << "  First good frame number (starting from zero): " <<
+            (--currentframe) << std::endl;
 
     // return without error
     return true;
@@ -625,35 +616,40 @@ bool readVideoUntilFirstGoodFrame() {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool ReadNextFrame() {
+    cv::Mat inputimageROI;
     // try to get next frame
-    inputimage = cvQueryFrame(inputvideo);
+    inputvideo.read(inputimage);
     currentframe++;
 
     // error check
-    if (!inputimage) {
+    if (inputimage.empty()) {
         LOG_ERROR("Could not retrieve image from video!");
         return false;
     }
-    if (inputimage->nChannels != 3) {
+    if (inputimage.channels() != 3) {
         LOG_ERROR("The input image is not a color image.");
         return false;
     }
-    if (memcmp(inputimage->channelSeq, "BGR", 3)) {
-        LOG_ERROR("The input image is not a BGR image. The result may be unexpected.");
-        return false;
-    }
+    // TODO: convert this from c to cpp header style
+    //if (memcmp(inputimage->channelSeq, "BGR", 3)) {
+    //    LOG_ERROR("The input image is not a BGR image. The result may be unexpected.");
+    //    return false;
+    //}
     // set image ROI if needed (cvQueryFrame resets it on every call)
     if (cs.imageROI.width && cs.imageROI.height) {
-        cvSetImageROI(inputimage, cs.imageROI);
+        inputimageROI = inputimage(cs.imageROI);
+    } else {
+        inputimageROI = inputimage;
     }
     // smooth input image if needed (and possible), but keep original for output video
     if (cs.gausssmoothing) {
-        cvSmooth(inputimage, smoothinputimage, CV_GAUSSIAN, cs.gausssmoothing);
+        cv::GaussianBlur(inputimageROI, smoothinputimage,
+                cv::Size(cs.gausssmoothing, cs.gausssmoothing), 0);
     } else {
-        cvCopy(inputimage, smoothinputimage);
+        inputimageROI.copyTo(smoothinputimage);
     }
     // convert BGR image to HSV image
-    cvCvtColor(smoothinputimage, HSVimage, CV_BGR2HSV);
+    cv::cvtColor(smoothinputimage, HSVimage, CV_BGR2HSV);
 
     // return without error
     return true;
