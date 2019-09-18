@@ -99,9 +99,9 @@ int OnInit(int argc, char *argv[]) {
         args.append(argv[i]);
         if (*argv[i] == '-') {
             if (strcmp(argv[i], "--inifile") == 0 && i < argc - 1)
-                strcpy_s(cs.inifile, MAXPATH, argv[++i]);
+                strncpy(cs.inifile, argv[++i], MAXPATH);
             else if (strcmp(argv[i], "--inputvideofile") == 0 && i < argc - 1)
-                strcpy_s(cs.inputvideofile, MAXPATH, argv[++i]);
+                strncpy(cs.inputvideofile, argv[++i], MAXPATH);
             else if (strcmp(argv[i], "--dayssincelastpaint") == 0
                     && i < argc - 1) {
                 cs.dayssincelastpaint = atoi(argv[++i]);
@@ -146,7 +146,7 @@ int OnInit(int argc, char *argv[]) {
     // define common output file name part (without path)
     outfile.str(cs.inputvideofile);
     i = (int) outfile.str().find_last_of("\\/");
-    strcpy_s(cs.outputfilecommon, MAXPATH, outfile.str().substr(i + 1).c_str());
+    strncpy(cs.outputfilecommon, outfile.str().substr(i + 1).c_str(), MAXPATH);
     // correct output directory
     outfile.str(cs.outputdirectory);
     if (*(outfile.str().rbegin()) != '\\' && *(outfile.str().rbegin()) != '/')  // check last char of string
@@ -173,35 +173,35 @@ int OnInit(int argc, char *argv[]) {
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << (cs.
             bProcessText ? BARCODETAG ".avi" : ".avi");
-    strcpy_s(cs.outputvideofile, MAXPATH, outfile.str().c_str());  // video
+    strncpy(cs.outputvideofile, outfile.str().c_str(), MAXPATH);  // video
     std::cout << "Using output video file: " << cs.outputvideofile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << ".blobs";
-    strcpy_s(cs.inputdatfile, MAXPATH, outfile.str().c_str());     // {} style data
+    strncpy(cs.inputdatfile, outfile.str().c_str(), MAXPATH);     // {} style data
     std::cout << "Using input blob file: " << cs.inputdatfile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << (cs.
             bProcessText ? BARCODETAG ".blobs" : ".blobs");
-    strcpy_s(cs.outputdatfile, MAXPATH, outfile.str().c_str());    // {} style data
+    strncpy(cs.outputdatfile, outfile.str().c_str(), MAXPATH);    // {} style data
     std::cout << "Using output blob file: " << cs.outputdatfile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.
             outputfilecommon << (".blobs" BARCODETAG);
-    strcpy_s(cs.inputbarcodefile, MAXPATH, outfile.str().c_str()); // trajognize barcode output file. Watch for common naming convention!
+    strncpy(cs.inputbarcodefile, outfile.str().c_str(), MAXPATH); // trajognize barcode output file. Watch for common naming convention!
     std::cout << "Using input barcode file: " << cs.inputbarcodefile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << ".log";
-    strcpy_s(cs.inputlogfile, MAXPATH, outfile.str().c_str());     // used to get LED lines
+    strncpy(cs.inputlogfile, outfile.str().c_str(), MAXPATH);     // used to get LED lines
     std::cout << "Using input log file: " << cs.inputlogfile << std::endl;
 
     outfile.str("");
     outfile << cs.outputdirectory << cs.outputfilecommon << (cs.
             bProcessText ? BARCODETAG ".log" : ".log");
-    strcpy_s(cs.outputlogfile, MAXPATH, outfile.str().c_str());    // log
+    strncpy(cs.outputlogfile, outfile.str().c_str(), MAXPATH);    // log
     std::cout << "Using output log file: " << cs.outputlogfile << std::endl;
 
     // set absolute starting time of video
@@ -289,7 +289,7 @@ int OnInit(int argc, char *argv[]) {
         for (i = 0; i < MAXMBASE; i++) {
             if (!mColor[i].mUse)
                 continue;
-            sprintf_s(cc, sizeof(cc), "c%d-%s", i, mColor[i].name);
+            snprintf(cc, sizeof(cc), "c%d-%s", i, mColor[i].name);
             cv::namedWindow(cc, CV_WINDOW_NORMAL);        // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
             if (cs.displaywidth)
                 cv::resizeWindow(cc, cs.displaywidth,

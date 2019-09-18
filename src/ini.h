@@ -108,7 +108,7 @@ class cCS {
 			//imageROI(?),
             dayssincelastpaint(0), colorselectionmethod(COLOR_FIT_LINEAR),
             gausssmoothing(0),  bInputVideoIsInterlaced(false) {
-        strcpy_s(inifile, MAXPATH, "etc/configs/ratognize.ini");
+        strncpy(inifile, "etc/configs/ratognize.ini", MAXPATH);
         paintdatefile[0]=0;
         inputvideofile[0]=0;
         inputbarcodefile[0]=0;

@@ -77,14 +77,14 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
         // input files
         } else if (sscanf(str.data(), "paintdatefile=\"%[^\"]s\"", cc) == 1
                 && !cs->paintdatefile[0]) {
-            strcpy_s(tempcs.paintdatefile, MAXPATH, cc);
+            strncpy(tempcs.paintdatefile, cc, MAXPATH);
         } else if (sscanf(str.data(), "inputvideofile=\"%[^\"]s\"", cc) == 1
                 && !cs->inputvideofile[0]) {
-            strcpy_s(tempcs.inputvideofile, MAXPATH, cc);
+            strncpy(tempcs.inputvideofile, cc, MAXPATH);
         // output directory
         } else if (sscanf(str.data(), "outputdirectory=\"%[^\"]s\"", cc) == 1
                 && !cs->outputdirectory[0]) {
-            strcpy_s(tempcs.outputdirectory, MAXPATH, cc);
+            strncpy(tempcs.outputdirectory, cc, MAXPATH);
 		// generals
         } else if (sscanf(str.data(), "mRats=%d", &i) == 1) {
             tempcs.mRats = i;
@@ -207,7 +207,7 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
         // colors (1-5 in file and display, 0-4 here)
         } else if (sscanf(str.data(), "mUse%d=%s %d", &ii, cc, &i) == 3) {
             mColor[ii].mUse = (i == 1);
-            strcpy_s(mColor[ii].name, 10, cc);
+            strncpy(mColor[ii].name, cc, 10);
         } else if (sscanf(str.data(), "mColorHSV%d=%d %d %d", &ii, &i, &j,
                 &k) == 4) {
             tempccc.mColor[ii].mColorHSV = cvScalar(i, j, k);

@@ -20,7 +20,7 @@ void WriteLogFileHeader(cCS* cs, std::string args, std::ofstream& ofslog) {
 
 	// store ini file
 	char cc[3 * MAXPATH];
-	sprintf_s(cc, sizeof(cc),
+	snprintf(cc, sizeof(cc),
 #ifdef ON_LINUX
 		cs->bProcessText ? "cp %s %s%s" BARCODETAG ".ini" : "cp %s %s%s.ini",
 #else
@@ -133,7 +133,7 @@ void OutputFadingColorsToFile(cCS* cs, std::list<cColorSet>* mColorDataBase,
     int oldDSLP = cs->dayssincelastpaint;
     // open and truncate output file
     char cc[3 * MAXPATH];
-    sprintf_s(cc, sizeof(cc), "%s%s.colors", cs->outputdirectory, cs->outputfilecommon);
+    snprintf(cc, sizeof(cc), "%s%s.colors", cs->outputdirectory, cs->outputfilecommon);
     fadefile.open(cc, std::ios::out | std::ios::trunc);
 
     // save params
