@@ -48,7 +48,6 @@ bool SetHiperVideoParams(cCS* cs, timed_t inputvideostarttime, double fps);
  * Generate and write out all kinds of visual output.
  *
  * \param inputimage        the original input image
- * \param smoothinputimage  the smoothed input image
  * \param cs                control states structure
  * \param mBlobParticles    the blob structure to store colored blobs
  * \param mMDParticles      the blob structure to store motion blobs
@@ -62,7 +61,7 @@ bool SetHiperVideoParams(cCS* cs, timed_t inputvideostarttime, double fps);
  * \param  framesizeROI  the size of the output frame to be used.
  * \param fps the frame per second setting of the input video
  */
-void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
+void WriteVisualOutput(cv::Mat &inputimage, cCS* cs,
 	tBlob& mBlobParticles, tBlob& mMDParticles, tBlob& mRatParticles,
 	tBarcode& mBarcodes, cColor* mColor, lighttype_t mLight,
 	timed_t inputvideostarttime, int currentframe, cv::Size framesize,

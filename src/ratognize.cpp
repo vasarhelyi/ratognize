@@ -505,13 +505,18 @@ void GenerateOutput() {
     if (cs.bShowVideo || cs.bWriteVideo) {
         // generate output video frame
         // pass original image to write to, not ROI one
-        WriteVisualOutput(inputimage, smoothinputimage, &cs,
+        WriteVisualOutput(inputimage, &cs,
                 mBlobParticles, mMDParticles, mRatParticles,
                 mBarcodes, mColor, mLight,
                 inputvideostarttime, currentframe, framesize, framesizeROI, fps);
-        // show image with blobs
+        // show image frame with blobs
         if (cs.bShowVideo) {
-            cv::imshow("OutputVideo", inputimage);     // show frame
+            if (cs.bApplyROIToVideoOutput && cs.imageROI.width && cs.imageROI.height) {
+                cv::imshow("OutputVideo", inputimage(cs.imageROI));
+            } else {
+                cv::imshow("OutputVideo", inputimage);
+            }
+
             if (cs.bCin) {
                 cvWaitKey(0);   // wait for Return
             } else {

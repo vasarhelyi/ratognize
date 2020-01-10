@@ -108,21 +108,11 @@ void DestroyVisualOutput() {
 }
 
 
-void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
+void WriteVisualOutput(cv::Mat &inputimage, cCS* cs,
 		tBlob& mBlobParticles, tBlob& mMDParticles, tBlob& mRatParticles,
 		tBarcode& mBarcodes, cColor* mColor, lighttype_t mLight,
 		timed_t inputvideostarttime, int currentframe, cv::Size framesize,
 		cv::Size framesizeROI, double fps) {
-    //////////////////////////////////////////////////////
-    // debug: do not comment out for determining min and max blob sizes
-    //cv::putText(inputimage,"dia: cs->mDiaMin, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20),&font,1,cv::Scalar(255,255,255));
-    //cvCircle(inputimage,cv::Point(20,20),mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
-    //cvCircle(inputimage,cv::Point(20+cs->mDistMax,20),cs->mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
-    //cv::putText(inputimage,"dia: cs->mDiaMax, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20+cs->mDistMax),&font,1,cv::Scalar(255,255,255));
-    //cvCircle(inputimage,cv::Point(20,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
-    //cvCircle(inputimage,cv::Point(20+cs->mDistMax,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
-    //////////////////////////////////////////////////////
-
 	cv::Mat inputimageROI;
 	tBlob::iterator it;
     cv::Point tmppoint;
@@ -132,17 +122,33 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
     char cc[3];
     cc[1] = 0;
 
-	// note that we generally write to original image as all coordinates are
-	// given for that frame. However, we create a ROI header for convenience
+	// note that all coordinates are in ROI frame,
+    // so we create a ROI header for convenience
+    if (cs->imageROI.width && cs->imageROI.height) {
+        inputimageROI = inputimage(cs->imageROI);
+    }
+    else {
+        inputimageROI = inputimage;
+    }
 
-	// OUTPUT_VIDEO_MD debug output:
+    //////////////////////////////////////////////////////
+    // debug: do not comment out for determining min and max blob sizes
+    //cv::putText(inputimageROI,"dia: cs->mDiaMin, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20),&font,1,cv::Scalar(255,255,255));
+    //cvCircle(inputimageROI,cv::Point(20,20),mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cvCircle(inputimageROI,cv::Point(20+cs->mDistMax,20),cs->mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cv::putText(inputimageROI,"dia: cs->mDiaMax, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20+cs->mDistMax),&font,1,cv::Scalar(255,255,255));
+    //cvCircle(inputimageROI,cv::Point(20,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cvCircle(inputimageROI,cv::Point(20+cs->mDistMax,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
+    //////////////////////////////////////////////////////
+    
+    // OUTPUT_VIDEO_MD debug output:
     if (cs->outputvideotype & OUTPUT_VIDEO_MD) {
         // plot MDParticles to image with black ellipses
         for (it = mMDParticles.begin(); it != mMDParticles.end(); ++it) {
             tmppoint.x = (int) (*it).mCenter.x;
             tmppoint.y = (int) (*it).mCenter.y;
             color = CV_RGB(50, 50, 50);     // DARK GREY
-            cv::ellipse(inputimage, tmppoint, cv::Size((int) (*it).mAxisA,
+            cv::ellipse(inputimageROI, tmppoint, cv::Size((int) (*it).mAxisA,
                             (int) (*it).mAxisB),
                     Y_IS_DOWN * (*it).mOrientation * 180 / M_PI, 0, 360,
                     color, 2);
@@ -157,13 +163,13 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
             tmppoint.x = (int) (*it).mCenter.x;
             tmppoint.y = (int) (*it).mCenter.y;
             color = CV_RGB(150, 150, 150);  // GRAY
-            cv::ellipse(inputimage, tmppoint,
+            cv::ellipse(inputimageROI, tmppoint,
                     cv::Size((int)(*it).mAxisA + dA, (int)(*it).mAxisB + dB),
                     Y_IS_DOWN * (*it).mOrientation * 180 / M_PI, 0, 360,
                     color, 2);
             // draw orientation "arrow" as well
             color = CV_RGB(50, 50, 50); // DARKER GRAY
-            cv::ellipse(inputimage, tmppoint,
+            cv::ellipse(inputimageROI, tmppoint,
                     cv::Size((int)(*it).mAxisA + dA, (int)(*it).mAxisB + dB),
                     Y_IS_DOWN * (*it).mOrientation * 180 / M_PI, -30, 30,
                     color, 2);
@@ -177,14 +183,14 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
             tmppoint.x = (int) (*it).mCenter.x;
             tmppoint.y = (int) (*it).mCenter.y;
             color = CV_RGB(50, 50, 50);     // DARK GREY
-            //cvCircle(inputimage,tmppoint,(int)(*it).mRadius,color,2);
-            //cv::ellipse(inputimage,tmppoint,cv::Size((int)(*it).mAxisA,(int)(*it).mAxisB),
+            //cvCircle(inputimageROI,tmppoint,(int)(*it).mRadius,color,2);
+            //cv::ellipse(inputimageROI,tmppoint,cv::Size((int)(*it).mAxisA,(int)(*it).mAxisB),
             //        Y_IS_DOWN*(*it).mOrientation*180/M_PI,0,360,color,2);
             //cvGetTextSize(cc, &font, &textSize,0);
             //tmppoint.x -= textSize.width/2;
             //tmppoint.y += textSize.height/2;
             color = CV_RGB(255, 255, 255);  // WHITE
-            cv::putText(inputimage, cc, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+            cv::putText(inputimageROI, cc, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         }
     }
     // OUTPUT_VIDEO_BARCODES debug output:
@@ -245,7 +251,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
                 }
                 // becomes LIGHT BLUE if both above
             }
-            cv::ellipse(inputimage, tmppoint, cv::Size((int) (*itb).mAxisA,
+            cv::ellipse(inputimageROI, tmppoint, cv::Size((int) (*itb).mAxisA,
                             (int) (*itb).mAxisB),
                     Y_IS_DOWN * (*itb).mOrientation * 180 / M_PI, 0, 360,
                     color, (!(*itb).mFix
@@ -255,7 +261,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
             tmppoint.y +=
                     (int) ((*itb).mAxisA * sin(Y_IS_DOWN *
                             (*itb).mOrientation));
-            cv::putText(inputimage, (*itb).strid, tmppoint,
+            cv::putText(inputimageROI, (*itb).strid, tmppoint,
 					CV_FONT_HERSHEY_SIMPLEX, 0.8, color2,
 					(!(*itb).mFix || ((*itb).mFix & MFIX_DELETED)) ? 1 : 2);
 
@@ -273,7 +279,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
                         char tempstr[256];
                         snprintf(tempstr, sizeof(tempstr), ",%d", vel);
                         tmppoint.x += 50;
-                        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+                        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
                     }
                 }
             }
@@ -286,88 +292,83 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
     // OUTPUT_VIDEO_BARCODE_COLOR_LEGEND debug output
     // Warning: make sure to be consistent with OUTPUT_VIDEO_BARCODES part
     if (cs->outputvideotype & OUTPUT_VIDEO_BARCODE_COLOR_LEGEND) {
-        // text starts at top left of ROI image, or original image?
-        if (cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height) {
-			inputimageROI = inputimage(cs->imageROI);
-		} else {
-			inputimageROI = inputimage;
-		}
-
         char tempstr[256];
-        tmppoint.x = 25;
-        tmppoint.y = 40;
+        int dy = 25;
+        bool applyroi = (cs->bApplyROIToVideoOutput && cs->imageROI.width && cs->imageROI.height);
+
+        tmppoint.x = 25 + (applyroi ? cs->imageROI.x : 0);
+        tmppoint.y = 40 + (applyroi ? cs->imageROI.y : 0);
         // color
         // fullfound: RED
         snprintf(tempstr, sizeof(tempstr), "FULLFOUND");
         color = CV_RGB(255, 0, 0);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // fullnocluster: DARK RED
         snprintf(tempstr, sizeof(tempstr), "FULLNOCLUSTER");
         color = CV_RGB(128, 0, 0);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // partlyfound: PINK
         snprintf(tempstr, sizeof(tempstr), "PARTLYFOUND_FROM_TDIST");
         color = CV_RGB(255, 128, 128);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // chosen: WHITE
         snprintf(tempstr, sizeof(tempstr), "CHOSEN");
         color = CV_RGB(255, 255, 255);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // virtual+chosen: YELLOW
         snprintf(tempstr, sizeof(tempstr), "VIRTUAL");
         color = CV_RGB(255, 255, 0);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // deleted: BLACK narrow
         snprintf(tempstr, sizeof(tempstr), "DELETED");
         color = CV_RGB(0, 0, 0);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 1);       // using narrow font
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 1);       // using narrow font
         // changedid: LIGHT GREEN narrow
         snprintf(tempstr, sizeof(tempstr), "CHANGEDID");
         color = CV_RGB(128, 255, 128);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_VECTOR0, 0.8, color, 1);       // using narrow font
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_VECTOR0, 0.8, color, 1);       // using narrow font
         // debug: PURPLE
         snprintf(tempstr, sizeof(tempstr), "DEBUG");
         color = CV_RGB(128, 0, 128);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // color2
-        tmppoint.y += tmppoint.x;
+        tmppoint.y += dy;
         // sharesblob: GREEN
         snprintf(tempstr, sizeof(tempstr), "SHARESBLOB");
         color = CV_RGB(50, 255, 0);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // sharesblob: BLUE
         snprintf(tempstr, sizeof(tempstr), "SHARESID");
         color = CV_RGB(50, 0, 255);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         // sharesblob: LIGHT BLUE
         snprintf(tempstr, sizeof(tempstr), "SHARESBLOB & SHARESID");
         color = CV_RGB(50, 255, 255);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
 
         // scale bar
-        tmppoint.y += tmppoint.x;
+        tmppoint.y += dy;
         snprintf(tempstr, sizeof(tempstr), "100 px");
         color = CV_RGB(255, 255, 255);
-        tmppoint.y += tmppoint.x;
-        cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
-        tmppoint.y += tmppoint.x / 2;
-        cv::line(inputimageROI, tmppoint, cv::Point(tmppoint.x + 100, tmppoint.y),
+        tmppoint.y += dy;
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        tmppoint.y += dy / 2;
+        cv::line(inputimage, tmppoint, cv::Point(tmppoint.x + 100, tmppoint.y),
                 color, 2);
-        cv::line(inputimageROI, cv::Point(tmppoint.x, tmppoint.y - 5),
+        cv::line(inputimage, cv::Point(tmppoint.x, tmppoint.y - 5),
                 cv::Point(tmppoint.x, tmppoint.y + 5), color, 2);
-        cv::line(inputimageROI, cv::Point(tmppoint.x + 100, tmppoint.y - 5),
+        cv::line(inputimage, cv::Point(tmppoint.x + 100, tmppoint.y - 5),
                 cv::Point(tmppoint.x + 100, tmppoint.y + 5), color, 2);
     }
 
@@ -389,8 +390,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
             tmppoint.x = (int) (*itb).mCenter.x;
             tmppoint.y = (int) (*itb).mCenter.y;
             color = CV_RGB(255, 255, 255);
-			// TODO: output to ROI or original image?
-			cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+			cv::putText(inputimageROI, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         }
     }
 
@@ -411,24 +411,16 @@ void WriteVisualOutput(cv::Mat &inputimage, cv::Mat &smoothinputimage, cCS* cs,
 				(int)(1000.0 * (rawtimed - rawtime)), currentframe,
 				(mLight == DAYLIGHT ? "DAY" : (mLight == NIGHTLIGHT ? "NIGHT" : \
 				(mLight == EXTRALIGHT ? "EXTRA" : "STRANGE"))));       // TODO: add UNINITIALIZED light if needed
-        // text starts at top left of ROI image, or original image?
-        if (cs->bApplyROIToVideoOutput && cs->imageROI.width
-                && cs->imageROI.height) {
-			inputimageROI = inputimage(cs->imageROI);
-		} else {
-			inputimageROI = inputimage;
-		}
     	drawtorect(inputimageROI, tempstr,
 				cv::Rect(2, 2, framesizeROI.width, framesizeROI.height / 10),
 				CV_FONT_HERSHEY_SIMPLEX, cv::Scalar(255, 255, 255), 2);
-
     }
     // write video frame to file
     if (cs->bWriteVideo == 1
             && ((currentframe % cs->outputvideoskipfactor) == 0)) {
         // only save ROI of image
         if (cs->bApplyROIToVideoOutput) {
-            videowriter.write(inputimage(cs->imageROI));
+            videowriter.write(inputimageROI);
         }
         // save with original size
         else {
