@@ -46,11 +46,11 @@ class cCS {
     int mRats;                  // max number of rats on the screen
     int mChips;                 // number of coloured blobs on each rat
     int mBase;                  // number of colours used
-    int mDiaMin;                // minimum diameter of a colored blob [pixel]
-    int mDiaMax;                // maximum diameter of a colored blob [pixel]
-	double mAreaMin;            // max area calculated from max diameter (watch for sync)
-	double mAreaMax;            // min area calculated from min diameter (watch for sync)
-	double mElongationMax;      // maximum elongation of blob ellipse (A/B)
+    int mDiaMin[MAXMBASE];      // minimum diameter of a colored blob [pixel] for each color
+    int mDiaMax[MAXMBASE];      // maximum diameter of a colored blob [pixel] for each color
+	double mAreaMin[MAXMBASE];  // max area calculated from max diameter (watch for sync) for each color
+	double mAreaMax[MAXMBASE];  // min area calculated from min diameter (watch for sync) for each color
+	double mElongationMax[MAXMBASE]; // maximum elongation of blob ellipse (A/B) for each color
     bool bBlobE;                // blobs are treated as ellipses (1) or circles(0)?
     // dilate and erode operation params
 	int mErodeBlob;
@@ -94,10 +94,9 @@ class cCS {
             bCout(false), bCin(false), bApplyROIToVideoOutput(false),
             bMotionDetection(false), mdAlpha(0.1), mdThreshold(15),
             mdAreaMin(5000), mdAreaMax(10000),
-            mRats(28), mChips(3), mBase(5), mDiaMin(10), mDiaMax(50),
-            mAreaMin(10 * 10 / 4 * 3.141592), mAreaMax(50 * 50 / 4 * 3.141592),
-            mElongationMax(10), bBlobE(false),
-		    mErodeBlob(2), mDilateBlob(2), mErodeRat(4), mDilateRat(6),
+            mRats(28), mChips(3), mBase(5),
+            bBlobE(false),
+            mErodeBlob(2), mDilateBlob(2), mErodeRat(4), mDilateRat(6),
             bLED(false),
             //mLEDPos(?), mLEDColor(?)
             outputvideoskipfactor(1), outputscreenshotskipfactor(1),
@@ -108,6 +107,7 @@ class cCS {
 			//imageROI(?),
             dayssincelastpaint(0), colorselectionmethod(COLOR_FIT_LINEAR),
             gausssmoothing(0),  bInputVideoIsInterlaced(false) {
+        int i;
         strncpy(inifile, "etc/configs/ratognize.ini", MAXPATH);
         paintdatefile[0]=0;
         inputvideofile[0]=0;
@@ -125,6 +125,14 @@ class cCS {
         imageROI.y = 0;
         memset(&mLEDPos, 0, sizeof(mLEDPos));
         memset(&mLEDColor, 0, sizeof(mLEDColor));
+        // initialize parameters defined for all colors separately
+        for (i = 0; i < MAXMBASE; i++) {
+            mDiaMin[i] = 10;
+            mDiaMax[i] = 50;
+            mAreaMin[i] = mDiaMin[i] * mDiaMin[i] / 4 * 3.141592;
+            mAreaMax[i] = mDiaMax[i] * mDiaMax[i] / 4 * 3.141592;
+            mElongationMax[i] = 10;
+        }
     }
     //! Destructor.
 	~cCS() {

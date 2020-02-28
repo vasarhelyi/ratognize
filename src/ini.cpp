@@ -16,6 +16,46 @@
 #include "light.h"
 #include "log.h"
 
+// parse as many integers/doubles from string as possible and set all in array
+// to last parsed (or default if none parsed)
+void parseStringToNumberList(char* src, int* idst, double* ddst, int size) {
+    int i, j, k, n;
+    double d;
+
+    j = 1;
+
+    for (k = 0; k < size; k++) {
+        // read next on previous success
+        if (j > 0) {
+            // scan next token
+            if (idst) {
+                j = sscanf(src, "%d %n", &i, &n);
+            } else if (ddst) {
+                j = sscanf(src, "%lf %n", &d, &n);
+            }
+        }
+        // store last read on success
+        if (j > 0) {
+            if (idst) {
+                idst[k] = i;
+            } else if (ddst) {
+                ddst[k] = d;
+            }
+
+        }
+        // or copy previous if we are not the fist one
+        else if (k > 0) {
+            if (idst) {
+                idst[k] = idst[k - 1];
+            }
+            else if (ddst) {
+                ddst[k] = ddst[k - 1];
+            }
+        }
+        src += n;
+    }
+}
+
 // TODO: there is no much error check. Format should be correct
 // parameters are needed not to overwrite command line parameters if given...
 bool ReadIniFile(bool tempDSLP, cCS* cs,
@@ -92,14 +132,18 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
             tempcs.mChips = i;
         } else if (sscanf(str.data(), "mBase=%d", &i) == 1) {
             tempcs.mBase = i;
-        } else if (sscanf(str.data(), "mDiaMin=%d", &i) == 1) {
-            tempcs.mDiaMin = i;
-			tempcs.mAreaMin = (double)tempcs.mDiaMin * tempcs.mDiaMin / 4 * M_PI;
-        } else if (sscanf(str.data(), "mDiaMax=%d", &i) == 1) {
-            tempcs.mDiaMax = i;
-			tempcs.mAreaMax = (double)tempcs.mDiaMax * tempcs.mDiaMax / 4 * M_PI;
-		} else if (sscanf(str.data(), "mElongationMax=%f", &f) == 1) {
-            tempcs.mElongationMax = (double) f;
+        } else if (sscanf(str.data(), "mDiaMin=%n%d", &i, &j) == 1) {
+            parseStringToNumberList(&str[i], tempcs.mDiaMin, NULL, MAXMBASE);
+			for (i = 0; i < MAXMBASE; i++) {
+                tempcs.mAreaMin[i] = (double)tempcs.mDiaMin[i] * tempcs.mDiaMin[i] / 4 * M_PI;
+            }
+        } else if (sscanf(str.data(), "mDiaMax=%n%d", &i, &j) == 1) {
+            parseStringToNumberList(&str[i], tempcs.mDiaMax, NULL, MAXMBASE);
+			for (i = 0; i < MAXMBASE; i++) {
+                tempcs.mAreaMax[i] = (double)tempcs.mDiaMax[i] * tempcs.mDiaMax[i] / 4 * M_PI;
+            }
+        } else if (sscanf(str.data(), "mElongationMax=%n%d", &i, &j) == 1) {
+            parseStringToNumberList(&str[i], NULL, tempcs.mElongationMax, MAXMBASE);
         } else if (sscanf(str.data(), "bBlobE=%d", &i) == 1) {
             tempcs.bBlobE = (i == 1);
 		// dilate/erode
@@ -225,7 +269,6 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
             tempccc.mBGColor.mRangeHSV = cvScalar(i, j, k);
             bNewday = 1;
         }
-
     }
 
     // release memory
@@ -233,7 +276,7 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
     str.clear();
 
     // TODO: more thorough error checking
-    if (!tempcs.mDiaMin || !tempcs.mDiaMax) {
+    if (!tempcs.mDiaMin[0] || !tempcs.mDiaMax[0]) {
         LOG_ERROR("Read error, some parameters are missing.");
         return false;
     }

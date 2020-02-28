@@ -88,7 +88,8 @@ bool ReadNextBarcodesFromFile(std::ifstream& ifs, tBarcode& mBarcodes, cCS* cs, 
             // check for full barcode structure
             if (++i == 7) {
                 // calculate major and minor axis
-                barcode.mAxisB = (cs->mDiaMax + cs->mDiaMin) / 2 * 0.7;
+                // TODO: this is not accurate if diameters are different for different blob colors
+                barcode.mAxisB = (cs->mDiaMax[0] + cs->mDiaMin[0]) / 2 * 0.7;
                 barcode.mAxisA = cs->mChips * barcode.mAxisB;
                 mBarcodes.push_back(barcode);
                 barcode.Reset();

@@ -129,8 +129,10 @@ int OnInit(int argc, char *argv[]) {
         std::cin.get();
         return 4;
     }
-    std::cout << "  OK - mDiaMin: " << cs.mDiaMin << " mDiaMax: " << cs.mDiaMax <<
-            " mElongationMax: " << cs.mElongationMax << std::endl;
+    std::cout << "  OK - mDiaMin: " << cs.mDiaMin[0] << ".." << cs.mDiaMin[MAXMBASE - 1] <<
+            " mDiaMax: " << cs.mDiaMax[0] << ".." << cs.mDiaMax[MAXMBASE - 1] <<
+            " mElongationMax: " << cs.mElongationMax[0] << ".." << cs.mElongationMax[MAXMBASE - 1] <<
+            std::endl;
 
     // read paintdate file
     if (cs.paintdatefile[0] && !tempDSLP) {

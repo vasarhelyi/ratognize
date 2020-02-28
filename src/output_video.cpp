@@ -133,14 +133,14 @@ void WriteVisualOutput(cv::Mat &inputimage, cCS* cs,
 
     //////////////////////////////////////////////////////
     // debug: do not comment out for determining min and max blob sizes
-    //cv::putText(inputimageROI,"dia: cs->mDiaMin, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20),&font,1,cv::Scalar(255,255,255));
-    //cvCircle(inputimageROI,cv::Point(20,20),mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
-    //cvCircle(inputimageROI,cv::Point(20+cs->mDistMax,20),cs->mDiaMin/2,cv::Scalar(255,255,255),2,CV_AA);
-    //cv::putText(inputimageROI,"dia: cs->mDiaMax, dist: mDistMax",cv::Point(20+2*cs->mDistMax,20+cs->mDistMax),&font,1,cv::Scalar(255,255,255));
-    //cvCircle(inputimageROI,cv::Point(20,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
-    //cvCircle(inputimageROI,cv::Point(20+cs->mDistMax,20+cs->mDistMax),cs->mDiaMax/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cv::putText(inputimageROI,"dia: cs->mDiaMin[0], dist: mDistMax",cv::Point(20+2*cs->mDistMax,20),&font,1,cv::Scalar(255,255,255));
+    //cvCircle(inputimageROI,cv::Point(20,20),mDiaMin[0]/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cvCircle(inputimageROI,cv::Point(20+cs->mDistMax,20),cs->mDiaMin[0]/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cv::putText(inputimageROI,"dia: cs->mDiaMax[0], dist: mDistMax",cv::Point(20+2*cs->mDistMax,20+cs->mDistMax),&font,1,cv::Scalar(255,255,255));
+    //cvCircle(inputimageROI,cv::Point(20,20+cs->mDistMax),cs->mDiaMax[0]/2,cv::Scalar(255,255,255),2,CV_AA);
+    //cvCircle(inputimageROI,cv::Point(20+cs->mDistMax,20+cs->mDistMax),cs->mDiaMax[0]/2,cv::Scalar(255,255,255),2,CV_AA);
     //////////////////////////////////////////////////////
-    
+
     // OUTPUT_VIDEO_MD debug output:
     if (cs->outputvideotype & OUTPUT_VIDEO_MD) {
         // plot MDParticles to image with black ellipses

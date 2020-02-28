@@ -49,8 +49,8 @@ void FillParticleFromMoments(cBlob* particle, cv::Moments &moments, bool bSkew) 
 
 void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
 		tBlob& mBlobParticles, int currentframe, std::ofstream& ofslog) {
-    double maxsize = cs->mAreaMin;
-	double minsize = cs->mAreaMax;
+    double maxsize = cs->mAreaMin[i];
+	double minsize = cs->mAreaMax[i];
     int overmaxcount = 0;
     int undermincount = 0;
     std::vector<std::vector<cv::Point>> contours;
@@ -62,7 +62,7 @@ void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
     cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
             CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
-    // Iterate over first blobs 
+    // Iterate over first blobs
     for (j = 0; j < contours.size(); j++) {
         // allow for more than final number, but not infinitely
         if (mColor[i].mNumBlobsFound >= cs->mRats * 20) {
@@ -72,14 +72,14 @@ void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
         moments = cv::moments(contours[j]);
 
         // store properly sized and shaped particles
-        if (moments.m00 >= cs->mAreaMin && moments.m00 <= cs->mAreaMax) {
+        if (moments.m00 >= cs->mAreaMin[i] && moments.m00 <= cs->mAreaMax[i]) {
             // Compute particle parameters
             cBlob newparticle;
             FillParticleFromMoments(&newparticle, moments, cs->bBlobE);
 
             // check elongation
             if (newparticle.mAxisB && newparticle.mAxisA / newparticle.mAxisB <=
-                    cs->mElongationMax) {
+                    cs->mElongationMax[i]) {
                 // set ID and increase blobnum
                 mColor[i].mNumBlobsFound++;
                 newparticle.index = i;
@@ -89,13 +89,13 @@ void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
             }
         }
         // too big
-        else if (moments.m00 > cs->mAreaMax) {
+        else if (moments.m00 > cs->mAreaMax[i]) {
             overmaxcount++;
             if (moments.m00 > maxsize)
                 maxsize = moments.m00;
         }
         // too small (but larger than one pixel)
-        else if (moments.m00 > cs->mAreaMin * 0.8) {
+        else if (moments.m00 > cs->mAreaMin[i] * 0.8) {
             undermincount++;
             if (moments.m00 < minsize)
                 minsize = moments.m00;
@@ -137,8 +137,8 @@ void FindHSVBlobs(cv::Mat &HSVimage, int i, cv::Mat &filterimage,
 
 void FindMDorRatBlobs(cv::Mat &srcBin, cCS* cs, tBlob& mParticles,
 		int currentframe, std::ofstream& ofslog) {
-    double maxsize = cs->mAreaMin;
-    double minsize = cs->mAreaMax;
+    double maxsize = cs->mAreaMin[0]; // TODO: this is not accurate
+    double minsize = cs->mAreaMax[0]; // TODO: this is not accurate
     int overmaxcount = 0;
     int undermincount = 0;
     std::vector<std::vector<cv::Point>> contours;
@@ -150,7 +150,7 @@ void FindMDorRatBlobs(cv::Mat &srcBin, cCS* cs, tBlob& mParticles,
     cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
             CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
-    // Iterate over blobs 
+    // Iterate over blobs
     for (j = 0; j < contours.size();j++) {
         // (no need to have more than ID's)
         if ((int)mParticles.size() >= cs->mRats * 2) {
