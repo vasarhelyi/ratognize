@@ -1,6 +1,20 @@
 cmake_minimum_required(VERSION 2.8) 
 project( ratognize C CXX )
 
+# Version information
+include(GetGitRevisionDescription)
+git_describe(RATOGNIZE_DETAILED_VERSION_STRING)
+get_git_head_revision(RATOGNIZE_GIT_REFSPEC RATOGNIZE_GIT_REVISION)
+string(REGEX MATCH "^[^-]+" RATOGNIZE_VERSION_STRING "${RATOGNIZE_DETAILED_VERSION_STRING}")
+string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9+])" "\\1;\\2;\\3"
+       RATOGNIZE_VERSION_PARTS ${RATOGNIZE_VERSION_STRING})
+list(GET RATOGNIZE_VERSION_PARTS 0 RATOGNIZE_VERSION_MAJOR)
+list(GET RATOGNIZE_VERSION_PARTS 1 RATOGNIZE_VERSION_MINOR)
+list(GET RATOGNIZE_VERSION_PARTS 2 RATOGNIZE_VERSION_PATCH)
+message(STATUS "Version: ${RATOGNIZE_DETAILED_VERSION_STRING}")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/src/version.h)
+
 set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 set(CMAKE_C_FLAGS "-Wall -std=gnu99 -fno-omit-frame-pointer -funwind-tables") 
 set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -fno-omit-frame-pointer -funwind-tables") 
