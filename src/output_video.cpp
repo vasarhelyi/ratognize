@@ -9,7 +9,7 @@
 #include "mfix.h"
 #include "output_video.h"
 
-#include <opencv2/imgproc.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 
 #define COPYRIGHTSTRING "(c) ELTE Department of Biological Physics, RATLAB "
