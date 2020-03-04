@@ -36,3 +36,9 @@ file(GLOB RATOGNIZE_SOURCES "src/*.cpp")
 
 add_executable(ratognize ${RATOGNIZE_SOURCES})
 target_link_libraries(ratognize m ${OpenCV_LIBS} ${AVCODEC_LIBRARY})
+
+# Set up include directories
+target_include_directories(ratognize
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/src
+)
+

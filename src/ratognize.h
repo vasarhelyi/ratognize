@@ -22,8 +22,6 @@
 #include "light.h"
 #include "mfix.h"
 
-#define RATOGNIZE_H__VERSION "$Id: ratognize.h 9957 2018-07-11 13:55:27Z vasarhelyi $"
-
 #define CV_WARN(message) fprintf(stderr, "warning: %s (%s:%d)\n", message, __FILE__, __LINE__)
 
 clock_t measure_duration_start, measure_duration_stop;

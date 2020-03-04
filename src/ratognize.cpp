@@ -13,12 +13,11 @@
 #include "output_text.h"
 #include "output_video.h"
 #include "ratognize.h"
+#include "version.h"
 
 #ifdef ON_LINUX
 #include "libavcodec/avcodec.h" /* for LIBAVCODEC_IDENT version-string */
 #endif
-
-#define RATOGNIZE__VERSION "$Id: ratognize.cpp 10039 2019-01-24 07:56:04Z vasarhelyi $"
 
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[]) {
@@ -85,8 +84,7 @@ int OnInit(int argc, char *argv[]) {
     std::cout << "libavcodec version: " << LIBAVCODEC_IDENT << std::endl;
 #endif
     std::cout << "openCV version: " << CV_VERSION << std::endl;
-    std::cout << "ratognize.h version: " << RATOGNIZE_H__VERSION << std::endl;
-    std::cout << "ratognize.cpp version: " << RATOGNIZE__VERSION << std::endl;
+    std::cout << "ratognize version: " << RATOGNIZE_DETAILED_VERSION_STRING << std::endl;
 
     // check arguments (if these are set, they overwrite .ini settings)
     // no error check, only good ones are
