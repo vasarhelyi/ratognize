@@ -298,6 +298,12 @@ void WriteVisualOutput(cv::Mat &inputimage, cCS* cs,
 
         tmppoint.x = 25 + (applyroi ? cs->imageROI.x : 0);
         tmppoint.y = 40 + (applyroi ? cs->imageROI.y : 0);
+        // currentframe
+        sprintf(tempstr, "frame %05d", currentframe);
+        color = CV_RGB(255, 255, 255);
+        tmppoint.y += tmppoint.x;
+        cvPutText(inputimage, tempstr, tmppoint, &font, color);
+        tmppoint.y += tmppoint.x;
         // color
         // fullfound: RED
         snprintf(tempstr, sizeof(tempstr), "FULLFOUND");
