@@ -193,6 +193,21 @@ void WriteVisualOutput(cv::Mat &inputimage, cCS* cs,
             cv::putText(inputimageROI, cc, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         }
     }
+    // OUTPUT_VIDEO_BLOBCOUNT debug output:
+    if (cs->outputvideotype & OUTPUT_VIDEO_BLOBCOUNT) {
+        int i = 0;
+        // plot BlobParticles to image with GREYSCALE brush
+        for (it = mBlobParticles.begin(); it != mBlobParticles.end(); ++it) {
+            i++;
+            tmppoint.x = (int)(*it).mCenter.x;
+            tmppoint.y = (int)(*it).mCenter.y;
+            color = CV_RGB(255, 0, 0);     // RED
+            cv::circle(inputimageROI, tmppoint, (int)(*it).mRadius + 15, color, 2);
+            snprintf(cc, sizeof(cc), "%d", i);
+            tmppoint.x += (int)(*it).mRadius + 20;
+            cv::putText(inputimageROI, cc, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 1, color, 2);
+        }
+    }
     // OUTPUT_VIDEO_BARCODES debug output:
     if (cs->outputvideotype & OUTPUT_VIDEO_BARCODES) {
         static const int step = 5;

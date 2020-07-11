@@ -20,7 +20,8 @@ typedef enum {
 	OUTPUT_VIDEO_BARCODES = 16,
 	OUTPUT_VIDEO_BARCODE_COLOR_LEGEND = 32,
 	OUTPUT_VIDEO_PAIR_ID = 64,
-	OUTPUT_VIDEO_VELOCITY = 128
+	OUTPUT_VIDEO_VELOCITY = 128,
+    OUTPUT_VIDEO_BLOBCOUNT = 256,
 } outputvideotype_t;
 
 //! A structure for storing control states (that are read from the .ini file)
