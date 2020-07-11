@@ -302,7 +302,7 @@ void WriteVisualOutput(cv::Mat &inputimage, cCS* cs,
         sprintf(tempstr, "frame %05d", currentframe);
         color = CV_RGB(255, 255, 255);
         tmppoint.y += tmppoint.x;
-        cvPutText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
+        cv::putText(inputimage, tempstr, tmppoint, CV_FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
         tmppoint.y += tmppoint.x;
         // color
         // fullfound: RED
