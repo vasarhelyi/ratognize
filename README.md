@@ -44,6 +44,7 @@ Ratognize is the second element of a toolchain that should be used properly to p
 3. Run [trajognize](https://github.com/vasarhelyi/trajognize) to get `.barcode` data for all the detected blobs.
 4. Run **trajognize statistics** to analyze your data automatically.
 5. If you have multiple video files to analyze, run **trajognize sum** to summarize data for all individual threads.
+6. Run **trajognize plot** to visualize data in several ways.
 
 For minimal usage instructions of ratognize, run `ratognize --help`.
 
