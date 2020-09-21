@@ -282,7 +282,12 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
     }
     // check coexistence of image and text (.blobs, .blobs.barcodes, etc.) processing
     if (tempcs.bProcessImage && tempcs.bProcessText) {
-        LOG_ERROR("Cannot process image and previously created text at the same time. TODO: implement.");
+        LOG_ERROR("Cannot process image and previously created text at the same time.");
+        return false;
+    }
+    // check coexistence of text read and write
+    if (tempcs.bProcessText && tempcs.bWriteText) {
+        LOG_ERROR("Cannot process and write text at the same time.");
         return false;
     }
     // store last color and check error

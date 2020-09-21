@@ -35,7 +35,9 @@ int main(int argc, char *argv[]) {
     double d = 0;
 
     // log the first frame
-    ofslog << currentframe << "\tFIRSTFRAME" << std::endl;
+    if (cs.bWriteText) {
+        ofslog << currentframe << "\tFIRSTFRAME" << std::endl;
+    }
 
     // loop through all frames
     while (!inputimage.empty() && (cs.lastframe < 1 || (cs.lastframe >= 1
@@ -64,7 +66,9 @@ int main(int argc, char *argv[]) {
     }
 
     // log the last frame
-    ofslog << currentframe - 1 << "\tLASTFRAME" << std::endl;
+    if (cs.bWriteText) {
+        ofslog << currentframe - 1 << "\tLASTFRAME" << std::endl;
+    }
 
     if (cs.bCout)
         std::cout << std::endl;
@@ -318,9 +322,6 @@ int OnInit(int argc, char *argv[]) {
     // init fonts, videowriter, hipervideoparams, etc.
     InitVisualOutput(&cs, framesize, framesizeROI, fps, inputvideostarttime);
 
-    // init output files
-    WriteBlobFileHeader(&cs, ofsdat);
-    WriteLogFileHeader(&cs, args, ofslog);
     // init input files
     if (cs.bProcessText) {
         if (!OpenInputFileStream(ifsbarcode, cs.inputbarcodefile)) {
@@ -335,6 +336,11 @@ int OnInit(int argc, char *argv[]) {
             LOG_ERROR("Could not open input log file.");
             return -15;
         }
+    } 
+    // init output files
+    else {
+        WriteBlobFileHeader(&cs, ofsdat);
+        WriteLogFileHeader(&cs, args, ofslog);
     }
 
     return 0;
@@ -347,10 +353,12 @@ void OnExit(bool bReleaseVars) {
         ifsbarcode.close();
         ifsdat.close();
         ifslog.close();
-        ofslog.flush();
-        ofslog.close();
-        ofsdat.flush();
-        ofsdat.close();
+        if (cs.bWriteText) {
+            ofslog.flush();
+            ofslog.close();
+            ofsdat.flush();
+            ofsdat.close();
+        }
         std::cout.flush();
         std::cerr.flush();
         // release visual outputs
