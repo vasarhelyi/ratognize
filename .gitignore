@@ -1,7 +1,9 @@
 build/
 Debug/
 Release/
-ratognize.vcxproj.user
 .vs/
+OUT/
 
+ratognize.vcxproj.user
+ratognize.sln
 src/version.h
