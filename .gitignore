@@ -3,3 +3,5 @@ Debug/
 Release/
 ratognize.vcxproj.user
 .vs/
+
+src/version.h
