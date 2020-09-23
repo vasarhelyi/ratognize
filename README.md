@@ -2,7 +2,18 @@
 
 Ratognize is an OpenCV-based video-processing tool for colored blob tracking, optimized for simple and fast execution on large scale footages with many individual blobs to track.
 
-It was developed at Eötvös University, Department of Biological Physics, throughout the [EU ERC COLLMOT Research Grant](https://hal.elte.hu/flocking) for tracking painted animals (rats first, hence the name) for several hours, days or even months (don't worry, they were safe and treated well, we are still friends).
+
+## history
+
+Ratognize was developed at Eötvös University, Department of Biological Physics, throughout the [EU ERC COLLMOT Research Grant](https://hal.elte.hu/flocking) for tracking painted animals (rats first, hence the name) for several hours, days or even months (don't worry, they were safe and treated well, we are still friends).
+
+It got public on GitHub in line with open-access efforts after our
+publication of the following article (please cite it if you use this repo):
+
+Synergistic benefits of group search in rats. (2020).
+Máté Nagy, Attila Horicsányi, Enikő Kubinyi, Iain D. Couzin,
+Gábor Vásárhelyi, Andrea Flack, Tamás Vicsek.
+Current Biology. DOI: https://doi.org/10.1016/j.cub.2020.08.079
 
 **Disclaimer**: The code was created for researchers by researchers, sorry if it does not meet your coding standards. Customer service is available though 0-24h ;)
 
