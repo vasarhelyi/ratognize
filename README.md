@@ -59,7 +59,10 @@ Ratognize is the second element of a toolchain that should be used properly to p
 
 For minimal usage instructions of ratognize, run `ratognize --help`.
 
-To setup ratognize properly, read and update the sample ini file `etc/configs/ratognize.ini`.
+To setup ratognize properly, create a copy of the sample ini file,
+`etc/configs/ratognize.ini`, read it over thorougly and change parameters as
+needed for your project. After, use your own ini file with the
+--inifile argument when running ratognize.
 
 For any further questions on usage please contact.
 
