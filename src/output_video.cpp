@@ -487,8 +487,9 @@ void WriteVisualOutput(cv::Mat &inputimage, cCS* cs,
 bool SetHiperVideoParams(cCS* cs, timed_t inputvideostarttime, double fps) {
 	// parse filename date or date&time
 	if (inputvideostarttime == 0) {
-		LOG_ERROR("File name could not be parsed. Check if format is correct (YYYY-MM-DD_hh-mm-ss).");
-		return false;
+		LOG_ERROR("Date is not parsed from filename, so hipervideo generation will be switched off.");
+        hipervideoskipfactor = 0;
+        return true;
 	}
 	// set hipervideo parameters
 	time_t tmptime = (time_t)inputvideostarttime;
@@ -507,6 +508,6 @@ bool SetHiperVideoParams(cCS* cs, timed_t inputvideostarttime, double fps) {
 	hipervideoframeend = (int)((hipervideoframeend - sec_videotoday) * fps);   // frame end on this video (could be out of range)
 	hipervideoskipfactor = std::max(1, 86400 / cs->hipervideoduration);       // use every Nth frame between hipervideoframestart and hipervideoframeend
 
-																		// return without error
+    // return without error
 	return true;
 }
