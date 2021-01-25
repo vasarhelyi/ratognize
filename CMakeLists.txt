@@ -15,25 +15,34 @@ string(REGEX REPLACE "^([0-9]+)\\.([0-9]+)\\.([0-9+])" "\\1;\\2;\\3"
 list(GET RATOGNIZE_VERSION_PARTS 0 RATOGNIZE_VERSION_MAJOR)
 list(GET RATOGNIZE_VERSION_PARTS 1 RATOGNIZE_VERSION_MINOR)
 list(GET RATOGNIZE_VERSION_PARTS 2 RATOGNIZE_VERSION_PATCH)
-message(STATUS "Found ratognize git version: ${RATOGNIZE_DETAILED_VERSION_STRING}")
+message(STATUS "Found ratognize: version ${RATOGNIZE_DETAILED_VERSION_STRING}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/src/version.h)
 
-set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
-set(CMAKE_C_FLAGS "-Wall -std=gnu99 -fno-omit-frame-pointer -funwind-tables") 
-set(CMAKE_CXX_FLAGS "-Wall -std=c++11 -fno-omit-frame-pointer -funwind-tables") 
+set(CMAKE_C_FLAGS "-std=gnu99") 
+set(CMAKE_CXX_FLAGS "-std=c++11") 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-DON_LINUX -D__STDC_CONSTANT_MACROS)
 
-# find OpenCV and CUDA and ffmpeg (avcodec) 
-find_package( OpenCV REQUIRED )
+# find OpenCV  
+find_package(OpenCV COMPONENTS core imgproc highgui REQUIRED)
+if(CMAKE_VERSION VERSION_LESS "2.8.11")
+    # Add OpenCV headers location to your include paths
+    include_directories(${OpenCV_INCLUDE_DIRS})
+endif()
+
+# find CUDA
 find_package(CUDA)
+set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
+
+# find ffmpeg (avcodec)
 find_library(AVCODEC_LIBRARY avcodec)
 
+# add ratognize source
 include_directories(src)
-
 file(GLOB RATOGNIZE_SOURCES "src/*.cpp")
 
+# create ratognize executable
 add_executable(ratognize ${RATOGNIZE_SOURCES})
 target_link_libraries(ratognize m ${OpenCV_LIBS} ${AVCODEC_LIBRARY})
 

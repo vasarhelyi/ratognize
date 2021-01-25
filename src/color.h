@@ -3,9 +3,7 @@
 
 #include <list>
 
-#include <cv.h>
-#include <cxcore.h>
-#include <highgui.h>
+#include <opencv2/opencv.hpp>
 
 #include <time.h>
 
@@ -22,8 +20,8 @@ typedef enum {
 //! A structure holding all information related to the
 // extraction of one color in HSV space.
 typedef struct {
-    CvScalar mColorHSV;         //!< (configuration) Hue(0-180)-Saturation(0-255)-Value(0-255)
-    CvScalar mRangeHSV;         //!< (configuration) +- range for the Hue-Saturation-Value channel
+    cv::Scalar mColorHSV;         //!< (configuration) Hue(0-180)-Saturation(0-255)-Value(0-255)
+    cv::Scalar mRangeHSV;         //!< (configuration) +- range for the Hue-Saturation-Value channel
 } tColor;
 
 // Class used for current color definition and in
@@ -47,12 +45,12 @@ class cColorSet {
     // reset
     void Reset(bool bResetBGColor=true) {
         for (int i = 0; i < MAXMBASE; i++) {
-            mColor[i].mColorHSV = cvScalar(0, 0, 0);
-            mColor[i].mRangeHSV = cvScalar(0, 0, 0);
+            mColor[i].mColorHSV = cv::Scalar(0, 0, 0);
+            mColor[i].mRangeHSV = cv::Scalar(0, 0, 0);
         }
 		if (bResetBGColor) {
-			mBGColor.mColorHSV = cvScalar(0, 0, 0);
-			mBGColor.mRangeHSV = cvScalar(0, 0, 0);
+			mBGColor.mColorHSV = cv::Scalar(0, 0, 0);
+			mBGColor.mRangeHSV = cv::Scalar(0, 0, 0);
 		}
         day = 0;
         datetime = 0;
@@ -75,8 +73,8 @@ class cColor {
     }
     // reset
     void Reset() {
-        mColor.mColorHSV = cvScalar(0, 0, 0);
-        mColor.mRangeHSV = cvScalar(0, 0, 0);
+        mColor.mColorHSV = cv::Scalar(0, 0, 0);
+        mColor.mRangeHSV = cv::Scalar(0, 0, 0);
         mNumBlobsFound = 0;
         mUse = false;
         name[0] = 0;

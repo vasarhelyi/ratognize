@@ -206,9 +206,9 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
             tempcs.mLEDPos.x = i;
             tempcs.mLEDPos.y = j;
         } else if (sscanf(str.data(), "mLEDColor=%d %d %d", &i, &j, &k) == 3) {
-            tempcs.mLEDColor.mColorHSV = cvScalar(i, j, k);
+            tempcs.mLEDColor.mColorHSV = cv::Scalar(i, j, k);
         } else if (sscanf(str.data(), "mLEDRange=%d %d %d", &i, &j, &k) == 3) {
-            tempcs.mLEDColor.mRangeHSV = cvScalar(i, j, k);
+            tempcs.mLEDColor.mRangeHSV = cv::Scalar(i, j, k);
 
         // paint variable
         } else if (sscanf(str.data(), "dayssincelastpaint=%d", &i) == 1 &&
@@ -254,19 +254,19 @@ bool ReadIniFile(bool tempDSLP, cCS* cs,
             strncpy(mColor[ii].name, cc, 10);
         } else if (sscanf(str.data(), "mColorHSV%d=%d %d %d", &ii, &i, &j,
                 &k) == 4) {
-            tempccc.mColor[ii].mColorHSV = cvScalar(i, j, k);
+            tempccc.mColor[ii].mColorHSV = cv::Scalar(i, j, k);
             bNewday = 1;
         } else if (sscanf(str.data(), "mRangeHSV%d=%d %d %d", &ii, &i, &j,
                 &k) == 4) {
-            tempccc.mColor[ii].mRangeHSV = cvScalar(i, j, k);
+            tempccc.mColor[ii].mRangeHSV = cv::Scalar(i, j, k);
             bNewday = 1;
         } else if (sscanf(str.data(), "mBGColorHSV=%d %d %d", &i, &j,
                 &k) == 3) {
-            tempccc.mBGColor.mColorHSV = cvScalar(i, j, k);
+            tempccc.mBGColor.mColorHSV = cv::Scalar(i, j, k);
             bNewday = 1;
         } else if (sscanf(str.data(), "mBGRangeHSV=%d %d %d", &i, &j,
                 &k) == 3) {
-            tempccc.mBGColor.mRangeHSV = cvScalar(i, j, k);
+            tempccc.mBGColor.mRangeHSV = cv::Scalar(i, j, k);
             bNewday = 1;
         }
     }

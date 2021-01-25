@@ -3,9 +3,7 @@
 
 /////////////////////////////////////////////////
 // include OpenCV header files
-#include <cv.h>
-#include <cxcore.h>
-#include <highgui.h>
+#include <opencv2/opencv.hpp>
 
 #include "cvutils.h"
 #include "cage.h"
@@ -33,7 +31,7 @@ bool ReadDayNightLED(cv::Mat &hsv, cv::Mat &inputimage, std::ofstream& ofslog,
     // R - 111
     // G - 100
     // B - 80
-    CvScalar avgBGR = cv::mean(inputimage);
+    cv::Scalar avgBGR = cv::mean(inputimage);
     // check red
     if (avgBGR.val[2] > 111)
         isdaylight++;
@@ -45,7 +43,7 @@ bool ReadDayNightLED(cv::Mat &hsv, cv::Mat &inputimage, std::ofstream& ofslog,
         isdaylight++;
 
     // set smaller image ROI to speed up calculation
-    CvRect rect = cvRect(
+    cv::Rect rect(
 			std::max(cs->mLEDPos.x - imsize / 2, 0),
             std::max(cs->mLEDPos.y - imsize / 2, 0),
             imsize, imsize);
@@ -69,8 +67,8 @@ bool ReadDayNightLED(cv::Mat &hsv, cv::Mat &inputimage, std::ofstream& ofslog,
     double maxmomentsize = 0;
 
 	// find blobs
-    cv::findContours(filterimage, contours, hierarchy, CV_RETR_EXTERNAL,
-            CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
+    cv::findContours(filterimage, contours, hierarchy, cv::RETR_EXTERNAL,
+            cv::CHAIN_APPROX_NONE, cv::Point(0, 0));
     // Iterate over first blobs (allow for more than final number, but not infinitely)
     while (j < contours.size()) {
         // Compute the moments

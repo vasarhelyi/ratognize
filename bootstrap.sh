@@ -6,6 +6,7 @@ mkdir -p build
 cd build
 rm -f CMakeCache.txt
 cmake ..
+make clean
 cd ..
 echo ""
 

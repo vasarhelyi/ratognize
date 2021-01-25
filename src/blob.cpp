@@ -1,6 +1,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+#include <opencv2/opencv.hpp>
+
 #include "blob.h"
 #include "cvutils.h"
 
@@ -37,8 +39,8 @@ void FillParticleFromMoments(cBlob* particle, cv::Moments &moments, bool bSkew) 
         double sy = moments.mu03 / pow(moments.mu02, 1.5);
         // transform to axisA/axisB
         double sA = sx * cos(particle->mOrientation) +
-                    sy * sin(Y_IS_DOWN * particle->mOrientation);
-        //double sB = sx * sin(Y_IS_DOWN * particle->mOrientation) +
+                    sy * sin(particle->mOrientation);
+        //double sB = sx * sin(particle->mOrientation) +
         //            sy * cos(particle->mOrientation);
         // correct orientation based on skew along main axis
         // (fish head is thicker than tail)
@@ -59,8 +61,8 @@ void FindSubBlobs(cv::Mat &srcBin, int i, cColor* mColor, cCS* cs,
     unsigned int j = 0;
 
     // find blob contours
-    cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
-            CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
+    cv::findContours(srcBin, contours, hierarchy, cv::RETR_EXTERNAL,
+            cv::CHAIN_APPROX_NONE, cv::Point(0, 0));
 
     // Iterate over first blobs
     for (j = 0; j < contours.size(); j++) {
@@ -147,8 +149,8 @@ void FindMDorRatBlobs(cv::Mat &srcBin, cCS* cs, tBlob& mParticles,
     unsigned int j = 0;
 
     // find blob contours
-    cv::findContours(srcBin, contours, hierarchy, CV_RETR_EXTERNAL,
-            CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
+    cv::findContours(srcBin, contours, hierarchy, cv::RETR_EXTERNAL,
+            cv::CHAIN_APPROX_NONE, cv::Point(0, 0));
 
     // Iterate over blobs
     for (j = 0; j < contours.size();j++) {
@@ -199,9 +201,8 @@ void FindMDorRatBlobs(cv::Mat &srcBin, cCS* cs, tBlob& mParticles,
 void DetectRats(cv::Mat &hsvimage, cv::Mat &maskimage, tColor* mBGColor,
 	   cCS* cs, tBlob& mParticles, int currentframe, std::ofstream& ofslog) {
 	// init variables
-	static cv::Mat binary;
+	cv::Mat binary(hsvimage.size(), CV_8UC1);
 
-	binary = cvCreateImageOnce(binary, hsvimage.size(), IPL_DEPTH_8U, 1, false);    // no need to zero it
 	// detect background and invert it to detect rats as white blobs
 	cvFilterHSV(binary, hsvimage, mBGColor->mColorHSV, mBGColor->mRangeHSV);
 	cv::bitwise_not(binary, binary);

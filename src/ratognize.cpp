@@ -282,7 +282,7 @@ int OnInit(int argc, char *argv[]) {
     }
     // debug options
     if (cs.bShowVideo) {
-        cv::namedWindow("OutputVideo", CV_WINDOW_NORMAL); // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+        cv::namedWindow("OutputVideo", cv::WINDOW_NORMAL); // | cv::GUI_EXPANDED | cv::WINDOW_KEEPRATIO);
         if (cs.displaywidth)
             cv::resizeWindow("OutputVideo", cs.displaywidth,
                     cs.displaywidth * framesizeROI.height / framesizeROI.width);
@@ -294,7 +294,7 @@ int OnInit(int argc, char *argv[]) {
             if (!mColor[i].mUse)
                 continue;
             snprintf(cc, sizeof(cc), "c%d-%s", i, mColor[i].name);
-            cv::namedWindow(cc, CV_WINDOW_NORMAL);        // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+            cv::namedWindow(cc, cv::WINDOW_NORMAL);        // | cv::GUI_EXPANDED | cv::WINDOW_KEEPRATIO);
             if (cs.displaywidth)
                 cv::resizeWindow(cc, cs.displaywidth,
                         cs.displaywidth * framesizeROI.height /
@@ -302,19 +302,19 @@ int OnInit(int argc, char *argv[]) {
         }
         // MD
         if (cs.bMotionDetection) {
-            cv::namedWindow("MD", CV_WINDOW_NORMAL);
+            cv::namedWindow("MD", cv::WINDOW_NORMAL);
             if (cs.displaywidth)
                 cv::resizeWindow("MD", cs.displaywidth,
                         cs.displaywidth * framesizeROI.height /
                         framesizeROI.width);
         }
         // LED
-        cv::namedWindow("LED", CV_WINDOW_NORMAL); // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+        cv::namedWindow("LED", cv::WINDOW_NORMAL); // | cv::GUI_EXPANDED | cv::WINDOW_KEEPRATIO);
         if (cs.displaywidth)
             cv::resizeWindow("LED", cs.displaywidth,
                     cs.displaywidth * framesizeROI.height / framesizeROI.width);
         // rats
-        cv::namedWindow("rats", CV_WINDOW_NORMAL);        // | CV_GUI_EXPANDED | CV_WINDOW_KEEPRATIO);
+        cv::namedWindow("rats", cv::WINDOW_NORMAL);        // | cv::GUI_EXPANDED | cv::WINDOW_KEEPRATIO);
         if (cs.displaywidth)
             cv::resizeWindow("rats", cs.displaywidth,
                     cs.displaywidth * framesizeROI.height / framesizeROI.width);
@@ -417,9 +417,7 @@ bool OnStep() {
 
         // mask HSVimage with maskimage for main blob detection
         // Note: no mask can be used on sub-calls, so no speed-up is possible
-        static cv::Mat maskedHSVimage;
-        maskedHSVimage = cvCreateImageOnce(maskedHSVimage, HSVimage.size(),
-                IPL_DEPTH_8U, 3);
+        cv::Mat maskedHSVimage(HSVimage.size(), CV_8UC3);
         HSVimage.copyTo(maskedHSVimage, maskimage);
         // Detect the blobs of all the used colors
         for (i = 0; i < cs.mBase; i++)
@@ -526,17 +524,17 @@ void GenerateOutput() {
             }
 
             if (cs.bCin) {
-                cvWaitKey(0);   // wait for Return
+                cv::waitKey(0);   // wait for Return
             } else {
-                cvWaitKey(1);   // wait minimal but go on
+                cv::waitKey(1);   // wait minimal but go on
             }
         }
         // wait for key press anyways
         else if (cs.bShowDebugVideo) {
             if (cs.bCin)
-                cvWaitKey(0);   // wait for Return
+                cv::waitKey(0);   // wait for Return
             else
-                cvWaitKey(1);   // wait minimal but go on
+                cv::waitKey(1);   // wait minimal but go on
         } else if (cs.bCin)
             std::cin.get();
     } else if (cs.bCin) {
@@ -549,21 +547,21 @@ bool initializeVideo(char *filename) {
     inputvideo.open(filename);
 
     if (!inputvideo.isOpened()) {
-        LOG_ERROR("Could not open input video file: %s", filename);
+        LOG_ERROR("Could not open input video file: \"%s\"", filename);
 	return false;
     }
     // set parameters
-    framesize.height = (int) inputvideo.get(CV_CAP_PROP_FRAME_HEIGHT);
+    framesize.height = (int) inputvideo.get(cv::CAP_PROP_FRAME_HEIGHT);
     if (framesize.height <= 0) {
         LOG_ERROR("Could not get proper framesize.height");
         return false;
     }
-    framesize.width = (int) inputvideo.get(CV_CAP_PROP_FRAME_WIDTH);
+    framesize.width = (int) inputvideo.get(cv::CAP_PROP_FRAME_WIDTH);
     if (framesize.width <= 0) {
         LOG_ERROR("Could not get proper framesize.width");
         return false;
     }
-    framecount = (int) inputvideo.get(CV_CAP_PROP_FRAME_COUNT);
+    framecount = (int) inputvideo.get(cv::CAP_PROP_FRAME_COUNT);
     if (framecount <= 0) {
         //LOG_ERROR("Could not get proper framecount (received %d)", framecount);
         //return false;
@@ -574,7 +572,7 @@ bool initializeVideo(char *filename) {
         framecount = 1000000;
         // end of temporary solution
     }
-    fps = inputvideo.get(CV_CAP_PROP_FPS);
+    fps = inputvideo.get(cv::CAP_PROP_FPS);
     // check if input video is interlaced or not
     if (cs.bInputVideoIsInterlaced) {
         fps /= 2;
@@ -666,7 +664,7 @@ bool ReadNextFrame() {
         inputimageROI.copyTo(smoothinputimage);
     }
     // convert BGR image to HSV image
-    cv::cvtColor(smoothinputimage, HSVimage, CV_BGR2HSV);
+    cv::cvtColor(smoothinputimage, HSVimage, cv::COLOR_BGR2HSV);
 
     // return without error
     return true;

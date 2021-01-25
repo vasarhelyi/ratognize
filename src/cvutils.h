@@ -3,18 +3,6 @@
 
 #include <opencv2/opencv.hpp>
 
-// positive orientation is mostly defined from right(x) towards down(y), as screen coordinates,
-// but it is up(y)-position under linux in some older OpenCV versions.
-// TODO: always check and synchronize with used OpenCV version,
-// it might be buggy!!! Works for 2.3, 2.3.1, 2.4 stable releases
-// under windows and 2.4.10 on atlasz under linux with Y_IS_DOWN = 1
-#ifdef ON_LINUX
-#define Y_IS_DOWN -1
-#else
-#define Y_IS_DOWN 1
-#endif
-
-
 /**
  * Allocates memory for an opencv image if it has not been allocated yet.
  *

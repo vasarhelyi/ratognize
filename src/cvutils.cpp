@@ -65,14 +65,10 @@ void cvFilterHSV(cv::Mat &dstBin, cv::Mat &srcHSV, cv::Scalar colorHSV,
 }
 
 void cvSkeleton(cv::Mat &src, cv::Mat &dst) {
-    static cv::Mat temp;
-    static cv::Mat eroded;
-    static cv::Mat skel;
     cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
-
-    temp = cvCreateImageOnce(temp, src.size(), IPL_DEPTH_8U, 1, false);
-    eroded = cvCreateImageOnce(eroded, src.size(), IPL_DEPTH_8U, 1, false);
-    skel = cvCreateImageOnce(skel, src.size(), IPL_DEPTH_8U, 1);
+    cv::Mat temp(src.size(), CV_8UC1);
+    cv::Mat eroded(src.size(), CV_8UC1);
+    cv::Mat skel(src.size(), CV_8UC1);
 
     src.copyTo(dst);
 
@@ -89,13 +85,8 @@ void cvSkeleton(cv::Mat &src, cv::Mat &dst) {
 
 void FilterMotion(cv::Mat &srcColor, cv::Mat &movingAverage,
         cv::Mat &dstGrey, double mdAlpha, int mdThreshold) {
-    //Images to use in the program.
-    cv::Mat difference;
     std::vector<cv::Mat> channels;
-
-    // create diff image
-    difference = cvCreateImageOnce(difference, srcColor.size(),
-			IPL_DEPTH_8U, 3, false);
+    cv::Mat difference(srcColor.size(), CV_8UC3);
 
     //Convert high-res moving average and store in difference.
     movingAverage.convertTo(difference, CV_8UC3);
@@ -125,7 +116,7 @@ void FilterMotion(cv::Mat &srcColor, cv::Mat &movingAverage,
     //cv::cvtColor(difference,dstGrey,CV_RGB2GRAY);
 
     //Convert the image to black and white.
-    cv::threshold(dstGrey, dstGrey, mdThreshold, 255, CV_THRESH_BINARY);
+    cv::threshold(dstGrey, dstGrey, mdThreshold, 255, cv::THRESH_BINARY);
 
     //Dilate and erode to get moving blobs
     //TODO: these parameters can be optimized, too/
