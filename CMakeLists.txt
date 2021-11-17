@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.1)
 
 project( ratognize C CXX )
 
@@ -19,24 +19,33 @@ message(STATUS "Found ratognize: version ${RATOGNIZE_DETAILED_VERSION_STRING}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/src/version.h)
 
-set(CMAKE_C_FLAGS "-std=gnu99") 
-set(CMAKE_CXX_FLAGS "-std=c++11") 
+set(CMAKE_C_FLAGS "-std=gnu99")
+set(CMAKE_CXX_FLAGS "-std=c++14")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-DON_LINUX -D__STDC_CONSTANT_MACROS)
-
-# find OpenCV  
-find_package(OpenCV COMPONENTS core imgproc highgui REQUIRED)
-if(CMAKE_VERSION VERSION_LESS "2.8.11")
-    # Add OpenCV headers location to your include paths
-    include_directories(${OpenCV_INCLUDE_DIRS})
+add_definitions(-D__STDC_CONSTANT_MACROS)
+if (LINUX)
+    add_definitions(-DON_LINUX)
 endif()
+
+# find OpenCV
+if (WIN32)
+    if (DEFINED ENV{OPENCV_DIR})
+        SET(OpenCV_DIR $ENV{OPENCV_DIR})
+    else()
+        message(FATAL_ERROR "Please set the OPENCV_DIR system environment variable to point to OpenCV build dir!")
+    endif()
+endif()
+find_package(OpenCV COMPONENTS core imgproc highgui REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 # find CUDA
 find_package(CUDA)
 set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 
-# find ffmpeg (avcodec)
-find_library(AVCODEC_LIBRARY avcodec)
+if (LINUX)
+    # find ffmpeg (avcodec)
+    find_library(AVCODEC_LIBRARY avcodec)
+endif()
 
 # add ratognize source
 include_directories(src)
@@ -44,10 +53,26 @@ file(GLOB RATOGNIZE_SOURCES "src/*.cpp")
 
 # create ratognize executable
 add_executable(ratognize ${RATOGNIZE_SOURCES})
-target_link_libraries(ratognize m ${OpenCV_LIBS} ${AVCODEC_LIBRARY})
+target_link_libraries(ratognize ${OpenCV_LIBS})
+if (LINUX)
+    target_link_libraries(ratognize m ${AVCODEC_LIBRARY})
+endif()
 
 # Set up include directories
 target_include_directories(ratognize
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/src
 )
 
+# copy OpenCV .dll files next to the executable as a post build event
+# TODO: copy only those relevant for the actual $<CONFIG>
+if (WIN32)
+    file(GLOB dll_file_names "${OpenCV_DIR}/../bin/*.dll")
+    set(dest_dir "${CMAKE_BINARY_DIR}/$<CONFIG>")
+    foreach(file_name ${dll_file_names})
+        add_custom_command(
+            TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${file_name}" "${dest_dir}"
+            COMMENT "Copying ${file_name} to build directory"
+        )
+    endforeach()
+endif()

@@ -1,6 +1,6 @@
 # ratognize
 
-`ratognize` is an OpenCV-based video-processing tool for colored blob tracking, optimized for simple and fast execution on large scale footages with many individual blobs to track.
+`ratognize` is a command line video-processing tool for colored blob tracking, optimized for simple and fast execution on large scale video footage with many individual blobs to track. `ratognize` is based on OpenCV.
 
 
 ## History
@@ -29,9 +29,7 @@ Current Biology. DOI: https://doi.org/10.1016/j.cub.2020.08.079
 
 * Finally, [ffmpeg](https://ffmpeg.org/) is also needed to get proper video outputs.
 
-The code base was tested under Linux (with `gcc`+`cmake`+`make`) and Windows (with Visual Studio)
-and should run smoothly, although I know it never does.
-Feel free to ask and please help me if you have suggestions for improvement.
+The code base was tested under Linux (with `gcc` + `cmake` + `make`) and on Windows (with Visual Studio and with Visual Studio Code + `cmake`), and should run smoothly, although I know it never does. Feel free to ask and please help me if you have suggestions for improvement.
 
 
 ## Linux
@@ -47,7 +45,9 @@ If you have installed all prerequisites, just run `bootstrap.sh`, go to the `bui
 
 ## Windows
 
-For Windows, code was only tested in Visual Studio. There you need to setup your environment properly. The file called `user_macros.props` might be of help.
+The code was first developed under Visual Studio 2017. There you need to setup your environment properly. The file called `user_macros.props` might be of help.
+
+The build process also got tested recently in Visual Studio Code with `cmake`. For linking OpenCV properly, do not forget to set the system environment variable `OPENCV_DIR` to the proper value (run the following with your proper OpenCV path from a terminal: `setx -m OPENCV_DIR c:\opencv\build\`).
 
 
 # Usage

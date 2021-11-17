@@ -2,6 +2,7 @@ build/
 Debug/
 Release/
 .vs/
+.vscode/
 OUT/
 
 ratognize.vcxproj.user
