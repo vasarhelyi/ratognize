@@ -72,7 +72,7 @@ needed for your project. After, use your own ini file with the
 
 For any further questions on usage please contact.
 
-## definitions
+## Definitions
 
 * **blob** - a blob is a single solid-colored area on an image that can be detected by `ratognize` with high efficiency.
 
